@@ -17,6 +17,12 @@ module Trax
         base.eager_load!
       end
 
+      def all
+        @all ||= autoload_class_names.map do |klass|
+          const_get(:"#{klass}")
+        end
+      end
+
       def autoload_file_paths
         @autoload_file_paths = ::Dir[module_path.join('*.rb')]
       end
