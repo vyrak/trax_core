@@ -1,8 +1,6 @@
 module Trax
   module Core
     module EagerAutoloadNamespace
-      extend ::ActiveSupport::Autoload
-
       def self.extended(base)
         source_file_path = caller[0].partition(":")[0]
 
@@ -13,9 +11,7 @@ module Trax
         end
 
         base.autoload_class_names.each do |klass|
-          base.eager_autoload do
-            autoload :"#{klass}"
-          end
+          base.autoload :"#{klass}"
         end
 
         base.eager_load!
