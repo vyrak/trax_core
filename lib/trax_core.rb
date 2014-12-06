@@ -1,6 +1,5 @@
-require "trax_core/version"
-require 'active_support/all'
+require_relative './trax'
 
 module TraxCore
-  # Your code goes here...
+
 end

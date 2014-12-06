@@ -1,6 +1,44 @@
 # TraxCore
 
-TODO: Write a gem description
+The active support for Trax / Trax components.
+
+### EagerAutoloadNamespace
+
+Wish you could eager load all of the paths in a particular namespace directory,
+eagerly? Say you have the following directory tree you're trying to autoload:
+
+whatever.rb
+``` ruby
+module Whatever
+  extend ::ActiveSupport::Autoload
+
+  eager_autoload do
+    autoload :Widget
+    autoload :Thing
+  end
+end
+
+Whatever.eager_load!
+```
+whatever/widget.rb
+``` ruby
+module Whatever
+  module Widget
+  end
+end
+```
+
+Now you just have to do:
+
+``` ruby
+module Whatever
+  include ::Trax::Core::EagerAutoloadNamespace
+end
+```
+
+Note, it cant handle all caps namespaces, i.e. it would break if namespace were WIDGETS,
+as it just uses classify on the file base name to define the autoload block.
+
 
 ## Installation
 
