@@ -15,4 +15,6 @@ end
 
 Bundler.require(:default, :development, :test)
 
-::Dir["#{::File.dirname(__FILE__)}/support/*.rb"].each {|f| require f }
+::Dir["#{::File.dirname(__FILE__)}/support/*.rb"].each {|f|
+  puts f
+   require f }
