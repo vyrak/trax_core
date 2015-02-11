@@ -8,5 +8,6 @@ module Trax
     extend ::ActiveSupport::Autoload
 
     autoload :EagerAutoloadNamespace
+    autoload :Errors
   end
 end
