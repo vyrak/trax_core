@@ -1,6 +1,21 @@
 module Trax
   module Core
     module Errors
+      # A simple inheritable error class
+      # Because Im sick of defining in every project a base error class
+      # and I dont believe arguments to throw error should be order dependent
+      # Example:
+      #
+      #  class AbstractInstanceMethodNotDefined < ::Trax::Core::Errors::Base
+      #    attr_accessor :method_name, :klass
+      #
+      #    message {
+      #      "Abstract instance method, #{method_name} not defined for #{klass}"
+      #    }
+      #  end
+      #
+      #  raise ::AbstractInstanceMethodNotDefined.new(:method_name => "my_method", :klass => self.class.name)
+
       class Base < StandardError
         class_attribute :_message
 
@@ -19,13 +34,6 @@ module Trax
         end
       end
 
-      class AbstractInstanceMethodNotDefined < ::Trax::Core::Errors::Base
-        attr_accessor :method_name, :klass
-
-        message {
-          "Abstract instance method, #{method_name} not defined for #{klass}"
-        }
-      end
     end
   end
 end
