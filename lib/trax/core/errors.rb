@@ -82,6 +82,16 @@ module Trax
           self.instance_eval(&self.class._message)
         end
       end
+
+      class ConfigurationError < ::Trax::Core::Errors::Base
+        argument :source, :required => true
+        argument :messages
+
+        message {
+          "Error configuring #{source}, \n" \
+          "#{messages.join('\n')}"
+        }
+      end
     end
   end
 end
