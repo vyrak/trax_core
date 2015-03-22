@@ -5,17 +5,24 @@ class Object
   # i.e. configuration_for(::Ecommerce::Cart) will define
   # Ecommerce::Cart::Configuration class, inherited form Trax::Core::Configuration
   # And we can then define specific configuration options, for that class, on that class
-  def configuration_for(target, &blk)
+  def configuration_for(target, as = :configuration, &blk)
+
+    target.const_set("Configurations", Class.new) unless const_defined?("Configurations")
+    target.const_get("Configurations").__send__(:attr_accessor, as)
+
     target.class_eval do
-      class << self
-        attr_accessor :_configuration
-      end
+      const_get("Configurations").const_set(as.to_s.classify, ::Class.new(::Trax::Core::Configuration))
+      const_get("Configurations").const_get(as.to_s.classify).instance_eval(&blk)
 
-      const_set("Configuration", ::Class.new(::Trax::Core::Configuration))
-      const_get("Configuration").instance_eval(&blk)
+      unless self.respond_to?(:configure)
+        define_singleton_method(:configure)
+        def self.configure(target_configuration = :configuration, &block)
+          configuration_klass = self::Configurations.const_get(target_configuration)
+          configuration_klass
 
-      def self.configure(&block)
-        @_configuration = const_get("Configuration").new(&block)
+          instance_variable_set(:"@#{target_configuration}", const_get(target_configuration.classify).new(&block))
+          @_configuration = const_get(target_configuration.classify).new(&block)
+        end
       end
 
       def self.config
@@ -24,8 +31,8 @@ class Object
     end
   end
 
-  def define_configuration_options(&block)
-    configuration_for(self, &block)
+  def define_configuration_options(as=:configuration, &block)
+    configuration_for(self, as, &block)
   end
 
   alias_method :define_configuration, :define_configuration_options
