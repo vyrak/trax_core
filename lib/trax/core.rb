@@ -11,5 +11,6 @@ module Trax
     autoload :Configuration
     autoload :EagerAutoloadNamespace
     autoload :Errors
+    autoload :FS
   end
 end
