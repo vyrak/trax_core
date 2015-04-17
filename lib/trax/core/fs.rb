@@ -57,8 +57,13 @@ module Trax
         attr_accessor :path
         attr_accessor :all
 
-        def self.[]()
-          self.new(path)
+        def self.[](path)
+          file_path = path.is_a?(Pathname) ? path : Pathname.new(path)
+          new(file_path)
+        end
+
+        def [](arg)
+          self.class.new(@path.join(arg).to_s)
         end
 
         def initialize(filepath)
@@ -136,7 +141,30 @@ module Trax
         end
       end
 
-      class CurrentDirectory < SimpleDelegator
+      class CurrentFileDirectory < SimpleDelegator
+        include ::Enumerable
+
+        attr_accessor :directory, :path
+
+        def initialize
+          @path = ::Pathname.new(::File.path(__FILE__))
+          @directory = ::Trax::Core::FS::Directory.new(@path)
+        end
+
+        def __getobj__
+          @directory
+        end
+
+        def each
+          yield @directory
+        end
+      end
+
+      class CurrentDirectory < CurrentFileDirectory
+
+      end
+
+      class CurrentWorkingDirectory < SimpleDelegator
         include ::Enumerable
 
         attr_accessor :directory, :path
