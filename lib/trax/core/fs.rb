@@ -122,6 +122,14 @@ module Trax
           end
         end
 
+        def recursive_files
+          files(true)
+        end
+
+        def recursive_folders
+          folders(true)
+        end
+
         def reload
           remove_instance_variable(:@folders) if defined?(:@folders)
           remove_instance_variable(:@files) if defined?(:@files)
