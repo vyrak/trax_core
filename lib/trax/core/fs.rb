@@ -52,13 +52,10 @@ module Trax
       end
 
       class Directory < Dir
-        attr_accessor :files
-        attr_accessor :directories
-        attr_accessor :path
-        attr_accessor :all
+        attr_accessor :files, :directories, :path
 
         def self.[](path)
-          file_path = path.is_a?(Pathname) ? path : Pathname.new(path)
+          file_path = path.is_a?(Pathname) ? path : ::Pathname.new(path)
           new(file_path)
         end
 
@@ -66,8 +63,8 @@ module Trax
           self.class.new(@path.join(arg).to_s)
         end
 
-        def initialize(filepath)
-          @path = ::Pathname.new(filepath)
+        def initialize(file_path)
+          @path = ::Pathname.new(file_path)
         end
 
         def all
@@ -87,15 +84,15 @@ module Trax
 
         def entries
           @entries ||= ::Dir.entries(path).map do |file_path|
-            path = ::Pathname.new(file_path) unless file_path.is_a?(Pathname)
-            path.directory? ? ::Trax::Core::FS::Directory.new(path) : ::Listing.new(path)
+            directory_file_path = ::Pathname.new(file_path) unless file_path.is_a?(Pathname)
+            directory_file_path.directory? ? ::Trax::Core::FS::Directory.new(directory_file_path) : ::Listing.new(directory_file_path)
           end
         end
 
         def files(recurse = false)
           @files ||= begin
             if recurse
-              current_directory_files = Files.new(all.select{|path| path.is_a?(::Trax::Core::FS::Listing) })
+              current_directory_files = Files.new(all.select{|file_path| file_path.is_a?(::Trax::Core::FS::Listing) })
 
               directories.map do |dir|
                 next unless dir.files(true) && dir.files(true).any?
@@ -104,7 +101,7 @@ module Trax
 
               current_directory_files || ::Trax::Core::FS::Files.new
             else
-              Files.new(all.select{|path| path.is_a?(::Trax::Core::FS::Listing) })
+              Files.new(all.select{|file_path| file_path.is_a?(::Trax::Core::FS::Listing) })
             end
           end
         end
@@ -112,7 +109,7 @@ module Trax
         def folders(recurse = false)
           @folders ||= begin
             if recurse
-              current_directory_directories = all.select{|path| path.is_a?(::Trax::Core::FS::Directory) }
+              current_directory_directories = all.select{|file_path| file_path.is_a?(::Trax::Core::FS::Directory) }
 
               current_directory_directories += folders(true).map do |dir|
                 dir.directories(true).any? ? dir.directories(true) : []
@@ -120,7 +117,7 @@ module Trax
 
               current_directory_directories
             else
-              all.select{ |path| path.is_a?(::Trax::Core::FS::Directory) }
+              all.select{ |file_path| file_path.is_a?(::Trax::Core::FS::Directory) }
             end
           end
         end
@@ -144,10 +141,16 @@ module Trax
       class CurrentFileDirectory < SimpleDelegator
         include ::Enumerable
 
+        def self.[](path)
+          file_path = path.is_a?(::Pathname) ? path : ::Pathname.new(path)
+          new(file_path)
+        end
+
         attr_accessor :directory, :path
 
         def initialize
-          @path = ::Pathname.new(::File.path(__FILE__))
+          source_file_path = caller[3].partition(":")[0]
+          @path = ::Pathname.new(::File.dirname(source_file_path))
           @directory = ::Trax::Core::FS::Directory.new(@path)
         end
 
