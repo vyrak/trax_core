@@ -51,7 +51,7 @@ module Trax
         end
       end
 
-      class Directory < Dir
+      class Directory < SimpleDelegator
         attr_accessor :files, :directories, :path
 
         def self.[](path)
@@ -65,6 +65,7 @@ module Trax
 
         def initialize(file_path)
           @path = ::Pathname.new(file_path)
+          @dir = ::Dir[@path]
         end
 
         def all
@@ -122,6 +123,16 @@ module Trax
           end
         end
 
+        def glob(*args)
+          args.map do |arg|
+            self.dup[arg].flatten.compact.uniq.map{|_path| ::Trax::Core::FS::Listing.new(_path) }
+          end.flatten.compact.uniq
+        end
+
+        def __getobj__
+          @dir
+        end
+
         def recursive_files
           files(true)
         end
@@ -134,11 +145,6 @@ module Trax
           remove_instance_variable(:@folders) if defined?(:@folders)
           remove_instance_variable(:@files) if defined?(:@files)
           self
-        end
-
-        def inspect
-          ivars = self.instance_variables.map{|v| "#{v}=#{instance_variable_get(v).to_s}"}
-          "#<#{self.class}: #{ivars}>"
         end
 
         def images
