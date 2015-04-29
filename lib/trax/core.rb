@@ -8,6 +8,7 @@ module Trax
   module Core
     extend ::ActiveSupport::Autoload
 
+    autoload :AbstractMethods
     autoload :Configuration
     autoload :EagerAutoloadNamespace
     autoload :Errors
