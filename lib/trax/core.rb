@@ -10,8 +10,10 @@ module Trax
 
     autoload :AbstractMethods
     autoload :Configuration
+    autoload :Concern
     autoload :EagerAutoloadNamespace
     autoload :Errors
     autoload :FS
+    autoload :Mixin
   end
 end
