@@ -14,6 +14,7 @@ module Trax
     autoload :EagerAutoloadNamespace
     autoload :Errors
     autoload :FS
+    autoload :HasMixins
     autoload :Mixin
   end
 end

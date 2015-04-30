@@ -9,9 +9,7 @@ module Trax
       def self.extended(base)
         base.extend(::ActiveSupport::Concern)
 
-        mod = super(base)
 
-        # binding.pry
 
         trace = ::TracePoint.new(:class) do |tracepoint|
           if tracepoint.self == base
@@ -19,13 +17,7 @@ module Trax
 
             if base.instance_variable_defined?(:@_before_extended_block)
               base.instance_variable_get(:@_before_extended_block).call
-              # block.call
             end
-
-            # if mod.instance_variable_defined?(:@_before_extended_block)
-            #   block = mod.instance_variable_get(:@_before_extended_block)
-            #   block.call
-            # end
           end
         end
 
@@ -39,16 +31,14 @@ module Trax
 
             if base.instance_variable_defined?(:@_after_extended_block)
               base.instance_variable_get(:@_after_extended_block).call
-              # block.call
+              puts "AFTER EXTENDED"
             end
-
-            # puts "END"
-
-            binding.pry
           end
         end
 
         trace.enable
+
+        mod = super(base)
 
         mod
 
