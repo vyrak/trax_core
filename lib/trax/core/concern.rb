@@ -9,8 +9,6 @@ module Trax
       def self.extended(base)
         base.extend(::ActiveSupport::Concern)
 
-
-
         trace = ::TracePoint.new(:class) do |tracepoint|
           if tracepoint.self == base
             trace.disable

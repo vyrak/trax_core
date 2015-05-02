@@ -11,10 +11,13 @@ module Trax
     autoload :AbstractMethods
     autoload :Configuration
     autoload :Concern
+    autoload :EagerLoadNamespace
     autoload :EagerAutoloadNamespace
     autoload :Errors
     autoload :FS
     autoload :HasMixins
     autoload :Mixin
+    autoload :Mixable
+    autoload :MixinRegistry
   end
 end

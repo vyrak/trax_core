@@ -1,20 +1,15 @@
 require 'spec_helper'
 
 describe ::Trax::Core::HasMixins do
-  before(:suite) do
-    fake_namespace_module = Object.const_set("FakeNamespace", Module.new)
+  subject { FakeNamespace }
 
-    fake_namespace_module.extend(::Trax::Core::HasMixins)
+  it { expect(subject.const_defined?("Mixin")).to eq true }
+  it { expect(subject.mixin_r-egistry).to be_a(Hash) }
+  it { expect(subject::Mixin.mixin_namespace).to eq FakeNamespace }
+
+  context "Mixin" do
+    it {
+      expect(::Storefront::Product.new.starting_price).to eq 9.99
+    }
   end
-
-  subject {
-    "FakeNamespace".classify.constantize
-  }
-
-  it {
-    binding.pry
-    expect{
-
-    subject.const_defined?("Mixins") }.to eq true }
-
 end

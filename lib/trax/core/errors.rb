@@ -92,6 +92,17 @@ module Trax
           "#{messages.join('\n')}"
         }
       end
+
+      class MixinNotRegistered < ::Trax::Core::Errors::Base
+        argument :mixin
+        argument :source
+        argument :mixin_namespace
+
+        message {
+          "#{source} tried to load mixin: #{mixin}, whichdoes not exist in " \
+          "registry. Registered mixins were #{mixin_namespace.mixin_registry.keys.join(', ')} \n"
+        }
+      end
     end
   end
 end

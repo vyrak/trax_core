@@ -1,19 +1,28 @@
 module Trax
   module Core
     module Mixin
-      extend ::Trax::Core::Concern
+      # extend ::ActiveSupport::Concern
+      # extend ::Trax::Core::Concern
 
-      before_extended do
-        puts "BEFORE EXTENDED"
+      def self.extended(base)
+        base.extend(::ActiveSupport::Concern)
+
+        super(base)
+
+        mixin_namespace.register_mixin(base) unless self == ::Trax::Core::Mixin
       end
 
-      after_extended do
-        puts "AFTER EXTENDED"
-      end
-
-      included do
-        puts "INCLUDED"
-      end
+      # before_extended do
+      #   puts "BEFORE EXTENDED"
+      # end
+      #
+      # after_extended do
+      #   puts "AFTER EXTENDED"
+      # end
+      #
+      # included do
+      #   puts "INCLUDED"
+      # end
       #
       # def self.extended(base)
       #   base.extend(::ActiveSupport::Concern)

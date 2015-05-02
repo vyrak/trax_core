@@ -2,54 +2,74 @@ module Trax
   module Core
     module HasMixins
       module ClassMethods
-        def mixin(key, options = {})
-          raise ::Trax::Core::Errors::MixinNotRegistered.new(
-            model: self.name,
-            mixin: key
-          )  unless mixin_namespace.mixin_registry.key?(key)
+        def register_mixin(mixin_klass, key = nil)
+          mixin_key = mixin_klass.respond_to?(:mixin_registry_key) ? mixin_klass.mixin_registry_key : (key || mixin_klass.name.demodulize.underscore.to_sym)
 
-          mixin_module = mixin_namespace.mixin_registry[key]
-          self.registered_mixins[key] = mixin_module
-
-          self.class_eval do
-            include(mixin_module) unless self.ancestors.include?(mixin_module)
-
-            options = {} if options.is_a?(TrueClass)
-            options = { options => true } if options.is_a?(Symbol)
-            mixin_module.apply_mixin(self, options) if mixin_module.respond_to?(:apply_mixin)
-
-            if mixin_module.instance_variable_defined?(:@_after_included_block)
-              block = mixin_module.instance_variable_get(:@_after_included_block)
-
-              instance_exec(options, &block)
-            end
-          end
-        end
-
-        def mixins(*args)
-          options = args.extract_options!
-
-          if(!options.blank?)
-            options.each_pair do |key, val|
-              self.mixin(key, val)
-            end
-          else
-            args.map{ |key| mixin(key) }
-          end
+          return if mixin_registry.key?(mixin_key)
+          mixin_registry[mixin_key] = mixin_klass
         end
       end
 
       def self.extended(base)
-        mixin_registry_module = const_set("#{base.name}::Mixins", ::Module.new)
-        mixin_registry_module.extend(::ActiveSupport::PerThreadRegistry)
-
-        mixin_module = const_set("#{base.name}::Mixin", ::Trax::Core::Mixin)
-
-        base.extend(::Trax::Core::Concern)
+        base.module_attribute(:mixin_registry) { Hash.new }
         base.extend(ClassMethods)
 
-        base.class_attribute :mixin_registry
-        base.mixin_namespace = base.name
+        base.define_configuration_options! do
+          option :auto_include, :default => false
+          option :auto_include_mixins, :default => []
+        end
+
+        mixin_module = base.const_set("Mixin", ::Module.new)
+        mixin_module.module_attribute(:mixin_namespace) { base }
+
+        mixin_module.module_eval do
+          def self.extended(base)
+            base.extend(ActiveSupport::Concern)
+            super(base)
+            puts base
+            mixin_namespace.register_mixin(base)
+          end
+        end
+
+        # mixin_namespace.register_mixin(base) unless self == ::Trax::Core::Mixin
+        # mixin_module.extend(::Trax::Core::Mixin)
+
+
+        mixable_module = base.const_set("Mixable", ::Module.new)
+
+        mixable_module.module_attribute(:mixin_namespace) { base }
+        mixable_module.extend(::ActiveSupport::Concern)
+
+        mixable_module.included do
+          class_attribute :mixin_namespace
+          self.mixin_namespace = base
+        end
+
+        mixable_module.include(::Trax::Core::Mixable)
+        # mixable_module.module_eval do
+        #   # extend ::ActiveSupport::Concern
+        # end
+        # mixable_module.extend(::Trax::Core::Mixable)
+        # mixable
+        #
+        # binding.pry
+
+        # base.class_eval do
+        #
+        # end
+
+        # base.extend(::Trax::Core::Concern)
+        # base.extend(ClassMethods)
+
+        # base.class_eval do
+        #   included do
+        #     class_attribute :registered_mixins
+        #
+        #     self.registered_mixins = {}
+        #   end
+        # end
+
+        super(base)
       end
     end
   end

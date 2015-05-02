@@ -4,7 +4,7 @@ module Trax
       def self.extended(base)
         source_file_path = caller[0].partition(":")[0]
 
-        base.class_eval do
+        base.module_eval do
           extend ::ActiveSupport::Autoload
 
           @eager_autoload_filepath = source_file_path
