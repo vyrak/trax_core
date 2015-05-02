@@ -21,22 +21,17 @@ module Trax
 
         mixin_module = base.const_set("Mixin", ::Module.new)
         mixin_module.module_attribute(:mixin_namespace) { base }
+        mixin_module.extend(::Trax::Core::Mixin)
 
         mixin_module.module_eval do
           def self.extended(base)
-            base.extend(ActiveSupport::Concern)
+            base.extend(Trax::Core::Mixin)
             super(base)
-            puts base
             mixin_namespace.register_mixin(base)
           end
         end
 
-        # mixin_namespace.register_mixin(base) unless self == ::Trax::Core::Mixin
-        # mixin_module.extend(::Trax::Core::Mixin)
-
-
         mixable_module = base.const_set("Mixable", ::Module.new)
-
         mixable_module.module_attribute(:mixin_namespace) { base }
         mixable_module.extend(::ActiveSupport::Concern)
 
@@ -46,28 +41,6 @@ module Trax
         end
 
         mixable_module.include(::Trax::Core::Mixable)
-        # mixable_module.module_eval do
-        #   # extend ::ActiveSupport::Concern
-        # end
-        # mixable_module.extend(::Trax::Core::Mixable)
-        # mixable
-        #
-        # binding.pry
-
-        # base.class_eval do
-        #
-        # end
-
-        # base.extend(::Trax::Core::Concern)
-        # base.extend(ClassMethods)
-
-        # base.class_eval do
-        #   included do
-        #     class_attribute :registered_mixins
-        #
-        #     self.registered_mixins = {}
-        #   end
-        # end
 
         super(base)
       end
