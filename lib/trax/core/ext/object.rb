@@ -43,6 +43,14 @@ class Object
   alias_method :has_configurable_options, :define_configuration_options
   alias_method :has_configurable_options!, :define_configuration_options!
 
+  def remove_instance_variables(*args)
+    args.map{ |ivar_name|
+      remove_instance_variable(:"@#{ivar_name}") if instance_variable_defined?(:"@#{ivar_name}")
+    }
+    self
+  end
+  alias_method :reset_instance_variables, :remove_instance_variables
+
   #following method stolen from abrandoned https://rubygems.org/gems/try_chain
   def try_chain(*symbols)
     return nil if self.nil?
