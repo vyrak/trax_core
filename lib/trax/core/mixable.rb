@@ -26,10 +26,16 @@ module Trax
             options = {} if options.is_a?(TrueClass)
             options = { options => true } if options.is_a?(Symbol)
 
-            if mixin_module.instance_variable_defined?(:@_on_mixed_in_block)
-              block = mixin_module.instance_variable_get(:@_on_mixed_in_block)
+            if mixin_module.instance_variable_defined?(:@_before_mixed_in_block)
+              _before_mixed_in_block = mixin_module.instance_variable_get(:@_before_mixed_in_block)
 
-              instance_exec(options, &block)
+              instance_exec(&_before_mixed_in_block)
+            end
+
+            if mixin_module.instance_variable_defined?(:@_on_mixed_in_block)
+              _on_mixed_in_block = mixin_module.instance_variable_get(:@_on_mixed_in_block)
+
+              instance_exec(options, &_on_mixed_in_block)
             end
           end
         end
