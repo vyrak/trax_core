@@ -2,26 +2,25 @@ module Trax
   module Core
     module Concern
       def included(base = nil, &block)
-        puts "INCLUDEDFROM CONCERN"
         super(base, &block)
-      end
 
-      def self.extended(base)
-        base.extend(::ActiveSupport::Concern)
-
-        trace = ::TracePoint.new(:class) do |tracepoint|
+        trace = ::TracePoint.new(:end) do |tracepoint|
           if tracepoint.self == base
             trace.disable
 
-            if base.instance_variable_defined?(:@_before_extended_block)
-              base.instance_variable_get(:@_before_extended_block).call
+            if self.instance_variable_defined?(:@_after_included_block)
+              base.instance_eval(&self.instance_variable_get(:@_after_included_block))
             end
           end
         end
 
         trace.enable
+      end
 
-        # binding.pry
+      def self.extended(base)
+        base.extend(::ActiveSupport::Concern)
+
+        super(base)
 
         trace = ::TracePoint.new(:end) do |tracepoint|
           if tracepoint.self == base #modules also trace end we only care about the class end
@@ -29,18 +28,11 @@ module Trax
 
             if base.instance_variable_defined?(:@_after_extended_block)
               base.instance_variable_get(:@_after_extended_block).call
-              puts "AFTER EXTENDED"
             end
           end
         end
 
         trace.enable
-
-        mod = super(base)
-
-        mod
-
-        # ::Trax::Model.register_mixin(base)
       end
 
       def before_extended(&block)
