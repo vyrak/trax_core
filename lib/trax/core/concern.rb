@@ -2,10 +2,12 @@ module Trax
   module Core
     module Concern
       def included(base = nil, &block)
-        unless base.respond_to?(:_mixins_config)
-          base.class_attribute :_mixins_config
-          base._mixins_config = {}
+        unless base.respond_to?(:_concerns)
+          base.class_attribute :_concerns_config
+          base._concerns_confg = {}
         end
+
+        base.extend(ClassMethods)
 
         super(base, &block)
 
@@ -17,8 +19,8 @@ module Trax
               base.instance_eval(&self.instance_variable_get(:@_after_included_block))
             end
 
-            if self.instance_variable_defined?(:@_on_mixed_in_block)
-              base.instance_exec(base.mixins_config, &self.instance_variable_get(:@_on_mixed_in_block))
+            if self.instance_variable_defined?(:@_on_concern_included_block)
+              base.instance_exec(base._concerns_config[self.name.demodulize.underscore.to_sym], &self.instance_variable_get(:@_on_concern_included_block))
             end
           end
         end
@@ -28,6 +30,7 @@ module Trax
 
       def self.extended(base)
         base.extend(::ActiveSupport::Concern)
+        base.extend(::Trax::Core::Concern::ClassMethods)
 
         super(base)
 
@@ -45,8 +48,8 @@ module Trax
       end
 
       module ClassMethods
-        def configure_mixin(name, options = {})
-          _mixins_config[name] = options
+        def configure_concern(name, options = {})
+          _concerns_config[name] = options
         end
       end
 
@@ -66,8 +69,8 @@ module Trax
         after_included(&block)
       end
 
-      def on_mixed_in(&block)
-        self.instance_variable_set(:@_on_mixed_in_block, block)
+      def on_concern_included(&block)
+        self.instance_variable_set(:@_on_concern_included_block, block)
       end
     end
   end

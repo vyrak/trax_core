@@ -4,7 +4,7 @@ describe ::Module do
   subject { Trax::Core }
 
   describe ".module_attribute" do
-    before(:context) do
+    before(:all) do
       Trax.module_attribute(:some_fake_hash) do
         {}
       end

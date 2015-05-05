@@ -9,13 +9,13 @@ module Trax
         self.instance_variable_set(:@_before_mixed_in_block, block)
       end
 
-      def extended(base)
+      def self.extended(base)
         base.extend(::ActiveSupport::Concern)
 
         super(base)
 
         trace = ::TracePoint.new(:end) do |tracepoint|
-          if tracepoint.self == base #modules also trace end we only care about the class end
+          if tracepoint.self == base
             trace.disable
 
             if base.instance_variable_defined?(:@_after_extended_block)
