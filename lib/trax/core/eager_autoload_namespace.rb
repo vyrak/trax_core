@@ -1,3 +1,4 @@
+#note this has been loading some namespaces twice in some cases, so dont use me yet.
 module Trax
   module Core
     module EagerAutoloadNamespace

@@ -20,6 +20,5 @@ module Trax
     autoload :Inheritance
     autoload :Mixin
     autoload :Mixable
-    autoload :MixinRegistry
   end
 end

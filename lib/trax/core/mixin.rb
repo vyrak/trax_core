@@ -19,15 +19,12 @@ module Trax
             trace.disable
 
             if base.instance_variable_defined?(:@_after_extended_block)
-              puts "CALLING AFTER EXTENDED"
               base.instance_variable_get(:@_after_extended_block).call
             end
           end
         end
 
         trace.enable
-
-        super(base)
 
         mixin_namespace.register_mixin(base) unless self == ::Trax::Core::Mixin
       end
