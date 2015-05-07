@@ -23,4 +23,13 @@ describe ::Object do
       SomeFakeClass.new.try_chain(:class, :name, :underscore).should eq "some_fake_class"
     end
   end
+
+  describe ".remove_instance_variables" do
+    it "reset instance variables by symbol names" do
+      obj = SomeFakeClass.new
+      obj.instance_variable_set(:@someivar, "anything")
+      obj.reset_instance_variables(:someivar)
+      obj.instance_variable_get(:@someivar).should be nil
+    end
+  end
 end

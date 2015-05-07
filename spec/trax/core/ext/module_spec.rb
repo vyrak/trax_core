@@ -3,6 +3,16 @@ require 'spec_helper'
 describe ::Module do
   subject { Trax::Core }
 
+  describe ".module_attribute" do
+    before(:all) do
+      Trax.module_attribute(:some_fake_hash) do
+        {}
+      end
+    end
+
+    it { Trax.some_fake_hash.should be_a(Hash) }
+  end
+
   describe ".recursively_define_namespaced_class" do
     context "when class namespace does not exist at global module level" do
       before do
