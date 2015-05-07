@@ -17,6 +17,7 @@ module Trax
     autoload :Errors
     autoload :FS
     autoload :HasMixins
+    autoload :Inheritance
     autoload :Mixin
     autoload :Mixable
     autoload :MixinRegistry
