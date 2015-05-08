@@ -103,6 +103,14 @@ module Trax
           "registry. Registered mixins were #{mixin_namespace.mixin_registry.keys.join(', ')} \n"
         }
       end
+
+      class DuplicateEnumValue < ::Trax::Core::Errors::Base
+        argument :value
+        argument :klass
+        message {
+          "#{klass} duplicate value #{value}"
+        }
+      end
     end
   end
 end
