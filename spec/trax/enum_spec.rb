@@ -27,4 +27,12 @@ describe ::Enum do
   describe ".values" do
     it { subject.values.should eq expected_values }
   end
+
+  context "duplicate enum name" do
+    it {expect{subject.define_enum_value(:default, 6)}.to raise_error(::Trax::Core::Errors::DuplicateEnumValue) }
+  end
+
+  context "duplicate enum value" do
+    it {expect{subject.define_enum_value(:newthing, 1)}.to raise_error(::Trax::Core::Errors::DuplicateEnumValue) }
+  end
 end
