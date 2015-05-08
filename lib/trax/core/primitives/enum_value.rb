@@ -1,9 +1,13 @@
 class EnumValue < SimpleDelegator
-  def initialize(val)
-    @value = val
+  attr_accessor :name, :value
+
+  def initialize(name:, value:)
+    @name = name
+    @value = value
   end
 
   def __getobj__
-    @value
+    @name
   end
+  alias :to_i :value
 end

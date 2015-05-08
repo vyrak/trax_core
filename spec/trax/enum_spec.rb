@@ -35,4 +35,10 @@ describe ::Enum do
   context "duplicate enum value" do
     it {expect{subject.define_enum_value(:newthing, 1)}.to raise_error(::Trax::Core::Errors::DuplicateEnumValue) }
   end
+
+  context "InstanceMethods" do
+    subject { ::CategoryEnum.new(:default) }
+
+    its(:choice) { should eq :default }
+  end
 end
