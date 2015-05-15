@@ -1,6 +1,10 @@
 require "active_support/core_ext/object/try"
 require 'pry'
 class Object
+  def as
+    yield self
+  end
+
   # Defines a Configuration Class within a target module namespace, or nested class
   # i.e. configuration_for(::Ecommerce::Cart) will define
   # Ecommerce::Cart::Configuration class, inherited form Trax::Core::Configuration
