@@ -1,7 +1,7 @@
 require "active_support/core_ext/object/try"
 require 'pry'
 class Object
-  def as
+  def as!
     yield self
   end
 
