@@ -9,26 +9,30 @@ class Hash
 
   def to_proc
     ->(hash_or_object) {
-      if hash_or_object.is_a?(::Hash)
-        new_hash = {}
+      new_hash = {}
 
+      if hash_or_object.is_a?(::Hash)
         self.each_pair do |k,v|
-          hash_or_object[k]
-          new_hash[v] = hash_or_object[k]
-          hash_or_object.delete(k)
+          if v.is_a?(Hash)
+            new_hash[v.keys.first] = v.values.first.call(hash_or_object[k])
+          else
+            new_hash[v] = hash_or_object[k]
+          end
         end
 
         hash_or_object.keys.map{ |k| hash_or_object.delete(k) }
         hash_or_object.merge!(new_hash)
       else
-        new_hash = {}
-
         self.each_pair do |k,v|
-          new_hash[v] = hash_or_object.__send__(k)
+          if v.is_a?(Hash)
+            new_hash[v.keys.first] = v.values.first.call(hash_or_object.__send__(k))
+          else
+            new_hash[v] = hash_or_object.__send__(k)
+          end
         end
-
-        return new_hash
       end
+
+      return new_hash
     }
   end
 end
