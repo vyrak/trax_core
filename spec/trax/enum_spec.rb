@@ -12,6 +12,14 @@ describe ::Enum do
     it { subject.key?(:default).should eq true }
   end
 
+  describe "[](val)" do
+    it { subject[:default].to_i.should eq 1 }
+  end
+
+  describe "[](val)" do
+    it { subject["default"].to_i.should eq 1 }
+  end
+
   describe ".value?" do
     it { subject.value?(1).should eq true }
   end

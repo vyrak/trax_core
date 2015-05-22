@@ -1,4 +1,5 @@
 require 'active_support/all'
+require_relative './core/fs'
 require_relative './core/ext/array'
 require_relative './core/ext/enumerable'
 require_relative './core/ext/module'

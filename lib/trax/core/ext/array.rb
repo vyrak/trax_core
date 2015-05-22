@@ -1,4 +1,5 @@
 class Array
+  #inspired by: http://thepugautomatic.com/2014/11/array-to-proc-for-hash-access/
   def to_proc
     ->(hash_or_object) {
       if hash_or_object.is_a?(::Hash)
@@ -10,6 +11,12 @@ class Array
       end
     }
   end
-end
 
-#inspired by: http://thepugautomatic.com/2014/11/array-to-proc-for-hash-access/
+  def flat_compact_uniq!
+    self.flatten!
+    self.compact!
+    self.uniq!
+    self
+  end
+  alias :flatten_compact_uniq! :flat_compact_uniq!
+end

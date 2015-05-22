@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe ::Object do
-  before do
+  before(:all) do
     class SomeFakeClass < OpenStruct
     end
   end
