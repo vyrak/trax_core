@@ -72,7 +72,7 @@ module Trax
 
         attr_reader :arguments_instance
 
-        def initialize(_attributes = {})
+        def initialize(**_attributes)
           @arguments_instance = self.class.permitted_arguments_klass.new(_attributes)
 
           super(message)
