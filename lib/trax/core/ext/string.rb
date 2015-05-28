@@ -1,4 +1,8 @@
 class String
+  def symbolize
+    self.try_chain(:demodulize, :underscore, :to_sym)
+  end
+
   def translate(*args)
     I18n.translate(self.underscore, *args)
   end

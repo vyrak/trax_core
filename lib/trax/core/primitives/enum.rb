@@ -116,11 +116,7 @@ class Enum < SimpleDelegator
   attr_accessor :choice
 
   def initialize(val)
-    if val.nil? && self.class.allow_nil
-      #donothing
-    else
-      self.choice = val
-    end
+    self.choice = val unless val.nil? && self.class.allow_nil
   end
 
   def choice=(val)
@@ -138,13 +134,17 @@ class Enum < SimpleDelegator
     @choice
   end
 
-  def to_json
-    @choice.value
+  def to_s
+    choice.to_s
   end
 
-  def to_hash
-    @choice.value
+  def to_json
+    choice.value
   end
+
+  # def to_hash
+  #   @choice.try(:value)
+  # end
 
   def valid_choice?(val)
     if ::Is.numeric?(val)

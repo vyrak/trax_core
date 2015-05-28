@@ -49,8 +49,10 @@ class Object
 
   def remove_instance_variables(*args)
     args.map{ |ivar_name|
-      remove_instance_variable(:"@#{ivar_name}") if instance_variable_defined?(:"@#{ivar_name}")
+      ivar_name = ivar_name.ivar? ? ivar_name : :"@#{ivar_name}"
+      remove_instance_variable(ivar_name) if instance_variable_defined?(ivar_name)
     }
+
     self
   end
   alias_method :reset_instance_variables, :remove_instance_variables

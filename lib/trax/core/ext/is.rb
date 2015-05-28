@@ -1,4 +1,8 @@
 class Is
+  def self.truthy?(val)
+    [TrueClass, FalseClass].includes?(val)
+  end
+  
   def self.numeric?(val)
     val.is_a?(::Numeric)
   end

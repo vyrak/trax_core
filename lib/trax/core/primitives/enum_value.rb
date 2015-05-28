@@ -10,8 +10,12 @@ class EnumValue < SimpleDelegator
     @value
   end
 
+  def inspect
+    to_s
+  end
+
   def to_json
-    @value.to_i
+    @value
   end
 
   def to_s
