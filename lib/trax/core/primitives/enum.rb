@@ -1,7 +1,26 @@
-require 'trax/core/inheritance'
+require 'trax/core/inheritance_hooks'
+
+### Examples
+# ProductCategory < Enum
+#   CLOTHING = 1
+#   SHOES = 2
+#   ACCESSORIES = 3
+# end
+# ProductCategory.keys => [:clothing, :shoes, :accessories]
+
+# StoreYearlyRevenue < Enum
+#   :'0_100000' = 1
+#   :'100000_999999' = 2
+#   :'1000000_99999999' = 3
+# end
+
+### Accepts either an integer or the name when setting a value
+# ProductCategory.new(1) => #{name: :clothing, :value => 1}
 
 class Enum
-  include ::Trax::Core::Inheritance
+  include ::Trax::Core::InheritanceHooks
+
+  class_attribute :allow_nil
 
   ### Class Methods ###
   def self.define_enum_value(const_name, val)
@@ -23,65 +42,93 @@ class Enum
     end
   end
 
+  def self.keys
+    _names_hash.keys
+  end
+
   def self.key?(name)
-    _names_hash.key?(name)
+    _names_hash.key?("#{name}")
   end
 
   def self.names
     _names_hash.values
   end
 
-  def self.keys
-    _names_hash.keys
+  #so we can prevent memory leaks by not casting string to symbol if invalid
+  #and memoize it
+  def self._names_as_strings
+    @_names_as_strings ||= names.map(&:to_s)
   end
 
+  def self.valid_name?(val)
+    _names_as_strings.include?(val)
+  end
+
+  def self.valid_value?(val)
+    values.include?(val)
+  end
+
+  #because calling valid_value? in the define_enum_value method is unclear
   def self.value?(val)
-    _values_hash.key?(val)
+    valid_value?(val)
+  end
+
+  def self.valid_choice?(val)
+    _names_hash.values.include?("#{val}")
   end
 
   def self.values
     _names_hash.values.map(&:to_i)
   end
 
+  class << self
+    alias :enum_value :define_enum_value
+    alias :define :define_enum_value
+    attr_accessor :_values_hash
+    attr_accessor :_names_hash
+  end
+
   ### Hooks ###
-  after_inherited do
+  on_inherited do
     instance_variable_set(:@_values_hash, ::Hash.new)
     instance_variable_set(:@_names_hash, ::Hash.new)
-    instance_variable_set(:@_names_as_strings, [])
+    instance_variable_set(:@_names_as_strings, nil)
+    self.allow_nil = false
+  end
 
-    class << self
-      attr_accessor :_values_hash
-      attr_accessor :_names_hash
-      #so we can prevent memory leaks by not casting string to symbol if invalid
-      attr_accessor :_names_as_strings
-    end
-
+  after_inherited do
     enum_constants = self.constants - [:ClassMethods]
     enum_constants.each do |const_name|
       define_enum_value(const_name, const_get(const_name))
-    end
-
-    _names_as_strings << names.map(&:to_s)
+    end if enum_constants.any?
   end
 
   ### Instance Methods ###
   attr_accessor :choice
 
   def initialize(val)
-    self.choice = val
+    if val.nil? && self.class.allow_nil
+      #donothing
+    else
+      self.choice = val
+    end
   end
 
   def choice=(val)
     if ::Is.numeric?(val)
-      raise ::Trax::Core::InvalidEnumOption.new(:klass => self.class.name, :value => val) unless self.class.value?(val)
-      @choice = self.class._values_hash[val]
+      raise ::Trax::Core::Errors::InvalidEnumValue.new(:field => self.class.name, :value => val) unless self.class.valid_value?(val)
+      @choice = self.class[val]
     elsif ::Is.symbolic?(val)
-      raise ::Trax::Core::InvalidEnumOption.new(:klass => self.class.name, :value => val) unless self.class.key?(val)
-      @choice = self.class._names_hash[val]
+      raise ::Trax::Core::Errors::InvalidEnumValue.new(:field => self.class.name, :value => val) unless self.class.valid_name?(val.try(:to_s))
+      @choice = self.class[val]
     else
-      raise ::Trax::Core::InvalidEnumOption.new(:klass => self.class.name, :value => val) unless @choice
+      raise ::Trax::Core::Errors::InvalidEnumValue.new(:field => self.class.name, :value => val) unless @choice
     end
 
+    @choice
+  end
+
+  def value
     @choice
   end
 end

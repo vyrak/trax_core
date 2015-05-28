@@ -1,6 +1,7 @@
 require 'active_support/all'
 require_relative './core/fs'
 require_relative './core/ext/array'
+require_relative './core/ext/class'
 require_relative './core/ext/enumerable'
 require_relative './core/ext/module'
 require_relative './core/ext/hash'
@@ -22,7 +23,7 @@ module Trax
     autoload :Errors
     autoload :FS
     autoload :HasMixins
-    autoload :Inheritance
+    autoload :InheritanceHooks
     autoload :Mixin
     autoload :Mixable
   end

@@ -111,6 +111,14 @@ module Trax
           "#{klass} duplicate value #{value}"
         }
       end
+
+      class InvalidEnumValue < ::Trax::Core::Errors::Base
+        argument :field
+        argument :value
+        message {
+          "#{field} Invalid enum value for #{value} "
+        }
+      end
     end
   end
 end
