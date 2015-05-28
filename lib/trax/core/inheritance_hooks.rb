@@ -31,8 +31,6 @@ module Trax
               if tracepoint.self == subklass
                 trace.disable
 
-                puts tracepoint.defined_class.inspect
-
                 if self.instance_variable_defined?(:@_after_inherited_block)
                   subklass.instance_eval(&self.instance_variable_get(:@_after_inherited_block))
                 end

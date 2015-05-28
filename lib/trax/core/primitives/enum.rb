@@ -17,10 +17,10 @@ require 'trax/core/inheritance_hooks'
 ### Accepts either an integer or the name when setting a value
 # ProductCategory.new(1) => #{name: :clothing, :value => 1}
 
-class Enum
+class Enum < SimpleDelegator
   include ::Trax::Core::InheritanceHooks
 
-  class_attribute :allow_nil
+  class_attribute :allow_nil, :raise_on_invalid
 
   ### Class Methods ###
   def self.define_enum_value(const_name, val)
@@ -42,6 +42,10 @@ class Enum
     end
   end
 
+  def self.define(*args)
+    define_enum_value(*args)
+  end
+
   def self.keys
     _names_hash.keys
   end
@@ -58,6 +62,10 @@ class Enum
   #and memoize it
   def self._names_as_strings
     @_names_as_strings ||= names.map(&:to_s)
+  end
+
+  def self.no_raise_mode?
+    !raise_on_invalid
   end
 
   def self.valid_name?(val)
@@ -94,6 +102,7 @@ class Enum
     instance_variable_set(:@_names_hash, ::Hash.new)
     instance_variable_set(:@_names_as_strings, nil)
     self.allow_nil = false
+    self.raise_on_invalid = false
   end
 
   after_inherited do
@@ -115,20 +124,35 @@ class Enum
   end
 
   def choice=(val)
-    if ::Is.numeric?(val)
-      raise ::Trax::Core::Errors::InvalidEnumValue.new(:field => self.class.name, :value => val) unless self.class.valid_value?(val)
-      @choice = self.class[val]
-    elsif ::Is.symbolic?(val)
-      raise ::Trax::Core::Errors::InvalidEnumValue.new(:field => self.class.name, :value => val) unless self.class.valid_name?(val.try(:to_s))
-      @choice = self.class[val]
-    else
-      raise ::Trax::Core::Errors::InvalidEnumValue.new(:field => self.class.name, :value => val) unless @choice
-    end
+    @choice = valid_choice?(val) ? self.class[val] : nil
+
+    raise ::Trax::Core::Errors::InvalidEnumValue.new(
+      :field => self.class.name,
+      :value => val
+    ) if self.class.raise_on_invalid && !@choice
 
     @choice
   end
 
-  def value
+  def __getobj__
     @choice
+  end
+
+  def to_json
+    @choice.value
+  end
+
+  def to_hash
+    @choice.value
+  end
+
+  def valid_choice?(val)
+    if ::Is.numeric?(val)
+      self.class.valid_value?(val)
+    elsif ::Is.symbolic?(val)
+      self.class.valid_name?(val.try(:to_s))
+    else
+      false
+    end
   end
 end

@@ -7,7 +7,16 @@ class EnumValue < SimpleDelegator
   end
 
   def __getobj__
+    @value
+  end
+
+  def to_json
+    @value.to_i
+  end
+
+  def to_s
     @name
   end
+
   alias :to_i :value
 end
