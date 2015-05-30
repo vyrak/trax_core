@@ -11,7 +11,7 @@ class EnumValue < SimpleDelegator
   end
 
   def inspect
-    to_s
+    @name.to_s
   end
 
   def to_json
@@ -20,6 +20,10 @@ class EnumValue < SimpleDelegator
 
   def to_s
     @name
+  end
+
+  def ===(val)
+    [name.to_s, value.to_i].include?(val)
   end
 
   alias :to_i :value

@@ -13,8 +13,8 @@ module Trax
 
           if subklass.class == Class
             #this supports anonymous classes created with a block passed, i.e.
-            #Class.new(Enum, &Proc.new{VAL=1})
-            #otherwise Class.new wont be caught by tracepoint statement below
+            # Class.new(Enum, &Proc.new{VAL=1})
+            # otherwise Class.new wont be caught by tracepoint statement below
             trace = ::TracePoint.new(:b_return) do |tracepoint|
               if tracepoint.self.class == Class
                 trace.disable

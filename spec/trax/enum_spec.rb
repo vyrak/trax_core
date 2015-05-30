@@ -37,7 +37,8 @@ describe ::Enum do
   end
 
   context "duplicate enum name" do
-    it {expect{subject.define_enum_value(:default, 6)}.to raise_error(::Trax::Core::Errors::DuplicateEnumValue) }
+
+    it { expect{subject.define_enum_value(:default, 6)}.to raise_error(::Trax::Core::Errors::DuplicateEnumValue) }
   end
 
   context "duplicate enum value" do
@@ -48,5 +49,9 @@ describe ::Enum do
     subject { ::CategoryEnum.new(:default) }
 
     its(:choice) { should eq :default }
+    it "choice changes" do
+      subject.choice = :clothing
+      subject.choice_was.should eq :default
+    end
   end
 end

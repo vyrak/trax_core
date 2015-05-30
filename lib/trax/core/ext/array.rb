@@ -19,4 +19,8 @@ class Array
     self
   end
   alias :flatten_compact_uniq! :flat_compact_uniq!
+
+  def to_single_quoted_list
+    "\'#{self.join("', '")}\'"
+  end
 end
