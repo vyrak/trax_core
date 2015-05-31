@@ -1,5 +1,4 @@
 require 'trax/core/inheritance_hooks'
-require 'active_model/dirty'
 # require 'active_model/attribute_methods'
 ### Examples
 # ProductCategory < Enum
@@ -26,17 +25,19 @@ class Enum < SimpleDelegator
   ### Class Methods ###
   def self.define_enum_value(const_name, val=nil)
     name = "#{const_name}".underscore.to_sym
-
+    const_name = name.to_s.camelize
     val = (self._values_hash.length + 1) if val.nil?
 
-    raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => const_name) if key?(name)
-    raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => val) if value?(val)
+    raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => const_name) if self === name
+    raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => val) if self === val
 
-    self._values_hash[val] = ::EnumValue.new(name: name, value: val)
-    self._names_hash[name] = ::EnumValue.new(name: name, value: val)
-    #so we can prevent memory leaks by not casting string to symbol if invalid
-    #and memoize it
-    self._names_as_strings << name.to_s
+    value_klass = self.const_set(const_name, Class.new(::EnumValueBlueprint){
+      self.tag = name
+      self.value = val
+    })
+
+    self._values_hash[val] = value_klass
+    self._names_hash[name] = value_klass
   end
 
   def self.[](val)
@@ -48,8 +49,13 @@ class Enum < SimpleDelegator
     end
   end
 
+  def self.choices
+    @choices ||= self._values_hash.values
+  end
+
   def self.select_values(*args)
-    args.select{|arg| self[arg].to_i }
+    args.flat_compact_uniq!
+    args.map{|arg| self[arg].to_i }
   end
 
   def self.define(*args)
@@ -58,7 +64,7 @@ class Enum < SimpleDelegator
 
   #define multiple values if its iterable
   def self.define_values(*args)
-    args.map{|arg| define(arg) }
+    args.map{|arg| define_enum_value(arg) }
   end
 
   def self.each(&block)
@@ -94,12 +100,16 @@ class Enum < SimpleDelegator
     valid_value?(val)
   end
 
-  def self.valid_choice?(val)
-    _names_as_strings.include?("#{val}")
-  end
-
   def self.values
     _names_hash.values.map(&:to_i)
+  end
+
+  def self.===(val)
+    _names_hash.values.any?{|v| v === val }
+  end
+
+  def self.type
+    :enum
   end
 
   class << self
@@ -114,19 +124,8 @@ class Enum < SimpleDelegator
   on_inherited do
     instance_variable_set(:@_values_hash, ::Hash.new)
     instance_variable_set(:@_names_hash, ::Hash.new)
-    instance_variable_set(:@_names_as_strings, [])
     self.allow_nil = false
     self.raise_on_invalid = false
-  end
-
-  after_inherited do
-    enum_constants = self.constants - [:ClassMethods, :RUBYGEMS_ACTIVATION_MONITOR, :BasicObject]
-
-    if enum_constants.length
-      enum_constants.each do |const_name|
-        define_enum_value(const_name, const_get(const_name))
-      end
-    end
   end
 
   ### Instance Methods ###
@@ -148,7 +147,7 @@ class Enum < SimpleDelegator
   end
 
   def __getobj__
-    @choice
+    @choice || nil
   end
 
   def to_s
@@ -156,16 +155,10 @@ class Enum < SimpleDelegator
   end
 
   def to_json
-    choice.value
+    choice.to_s
   end
 
   def valid_choice?(val)
-    if ::Is.numeric?(val)
-      self.class.valid_value?(val)
-    elsif ::Is.symbolic?(val)
-      self.class.valid_name?(val.try(:to_s))
-    else
-      false
-    end
+    self.class === val
   end
 end

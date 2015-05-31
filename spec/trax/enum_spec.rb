@@ -48,10 +48,14 @@ describe ::Enum do
   context "InstanceMethods" do
     subject { ::CategoryEnum.new(:default) }
 
-    its(:choice) { should eq :default }
-    it "choice changes" do
-      subject.choice = :clothing
-      subject.choice_was.should eq :default
-    end
+    it { subject.choice.should eq :default }
+    it { subject.choice.should eq 1 }
+
+    # its(:choice) { should eq :default }
+    # it "choice changes" do
+    #   binding.pry
+    #   subject.choice = :clothing
+    #   # subject.choice_was.should eq :default
+    # end
   end
 end
