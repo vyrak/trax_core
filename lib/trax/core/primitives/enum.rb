@@ -49,6 +49,10 @@ class Enum < SimpleDelegator
     end
   end
 
+  def self.as_json(options={})
+    choice.to_s
+  end
+
   def self.choices
     @choices ||= self._values_hash.values
   end
@@ -120,13 +124,6 @@ class Enum < SimpleDelegator
       :choices => choices.map(&:to_schema),
       :values => keys
     )
-    # ::Hashie::Mash.new(
-    #   :name => self.name.demodulize.underscore,
-    #   :
-    #   :type => :enum,
-    #   :choices => choices.map(&:to_schema),
-    #   :values => keys
-    # )
   end
 
   class << self
@@ -168,10 +165,6 @@ class Enum < SimpleDelegator
   end
 
   def to_s
-    choice.to_s
-  end
-
-  def to_json
     choice.to_s
   end
 

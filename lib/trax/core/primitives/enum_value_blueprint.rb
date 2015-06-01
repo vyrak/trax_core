@@ -4,6 +4,10 @@ class EnumValueBlueprint
 
   abstract_class_attribute :tag, :value
 
+  def self.as_json(options={})
+    tag.to_s
+  end
+
   def self.enum
     parent
   end
@@ -20,10 +24,6 @@ class EnumValueBlueprint
     val == parent
   end
 
-  def self.to_json
-    value
-  end
-
   def self.to_schema
     ::Trax::Core::Definition.new(
       :source => self.name,
@@ -34,7 +34,7 @@ class EnumValueBlueprint
   end
 
   def self.inspect
-    ":#{tag}"
+    "#{tag}"
   end
 
   def self.include?(val)
