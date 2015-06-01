@@ -112,6 +112,23 @@ class Enum < SimpleDelegator
     :enum
   end
 
+  def self.to_schema
+    ::Trax::Core::Definition.new(
+      :name => self.name.demodulize.underscore,
+      :source => self.name,
+      :type => :enum,
+      :choices => choices.map(&:to_schema),
+      :values => keys
+    )
+    # ::Hashie::Mash.new(
+    #   :name => self.name.demodulize.underscore,
+    #   :
+    #   :type => :enum,
+    #   :choices => choices.map(&:to_schema),
+    #   :values => keys
+    # )
+  end
+
   class << self
     alias :enum_value :define_enum_value
     alias :define :define_enum_value

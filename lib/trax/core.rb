@@ -20,6 +20,7 @@ module Trax
     autoload :AbstractMethods
     autoload :Configuration
     autoload :Concern
+    autoload :Definition
     autoload :EagerLoadNamespace
     autoload :EagerAutoloadNamespace
     autoload :Errors

@@ -24,6 +24,15 @@ class EnumValueBlueprint
     value
   end
 
+  def self.to_schema
+    ::Trax::Core::Definition.new(
+      :source => self.name,
+      :name => to_s,
+      :type => :enum_value,
+      :integer_value => to_i
+    )
+  end
+
   def self.inspect
     ":#{tag}"
   end
