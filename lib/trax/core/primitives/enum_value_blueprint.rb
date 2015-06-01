@@ -34,7 +34,7 @@ class EnumValueBlueprint
   end
 
   def self.inspect
-    "#{tag}"
+    ":#{tag}"
   end
 
   def self.include?(val)

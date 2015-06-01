@@ -68,7 +68,9 @@ class Enum < SimpleDelegator
 
   #define multiple values if its iterable
   def self.define_values(*args)
-    args.map{|arg| define_enum_value(arg) }
+    args.each_with_index do |arg, i|
+      define_enum_value(arg, (i + 1))
+    end
   end
 
   def self.each(&block)
