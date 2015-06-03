@@ -18,10 +18,11 @@ module Trax
       end
 
       def included(base = nil, &block)
-        super(base, &block)
+        super(base, &block) if defined?(super)
 
         trace = ::TracePoint.new(:end) do |tracepoint|
           if tracepoint.self == base
+
             trace.disable
 
             if self.instance_variable_defined?(:@_after_included_block)
@@ -31,6 +32,8 @@ module Trax
         end
 
         trace.enable
+
+        base
       end
 
       def after_included(&block)
