@@ -14,4 +14,13 @@ class Class
 
     const_set(name, new(parent_klass, &block))
   end
+
+  def superclasses_until(klass, superclass_chain = [])
+    if superclass != klass
+      superclass_chain << superclass
+      return superclasses_until(superclass, superclass_chain)
+    else
+      return superclass_chain
+    end
+  end
 end
