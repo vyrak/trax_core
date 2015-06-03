@@ -10,7 +10,6 @@ require_relative './core/ext/string'
 require_relative './core/ext/symbol'
 require_relative './core/ext/is'
 require_relative './core/primitives/enum_value'
-require_relative './core/primitives/enum_value_blueprint'
 require_relative './core/primitives/enum'
 
 module Trax

@@ -1,30 +1,52 @@
-class EnumValue < SimpleDelegator
-  attr_accessor :name, :value
+require 'trax/core/abstract_methods'
+class EnumValue
+  include ::Trax::Core::AbstractMethods
 
-  def initialize(name:, value:)
-    @name = name
-    @value = value
+  abstract_class_attribute :tag, :value
+
+  def self.as_json(options={})
+    tag.to_s
   end
 
-  def __getobj__
-    @value
+  def self.enum
+    parent
   end
 
-  def inspect
-    @name.to_s
+  def self.to_s
+    tag.to_s
   end
 
-  def to_json
-    @value
+  def self.to_i
+    value
   end
 
-  def to_s
-    @name
+  def self.is_enum_value?(val)
+    val == parent
   end
 
-  def ===(val)
-    [name.to_s, value.to_i].include?(val)
+  def self.to_schema
+    ::Trax::Core::Definition.new(
+      :source => self.name,
+      :name => to_s,
+      :type => :enum_value,
+      :integer_value => to_i
+    )
   end
 
-  alias :to_i :value
+  def self.inspect
+    ":#{tag}"
+  end
+
+  def self.include?(val)
+    self.=== val
+  end
+
+  #maybe this is a bad idea, not entirely sure
+  def self.==(val)
+    self.=== val
+  end
+
+  def self.===(val)
+    [tag, to_s, to_i].include?(val)
+  end
 end

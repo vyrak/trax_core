@@ -1,4 +1,4 @@
-require 'trax/core/inheritance_hooks'
+# require 'trax/core/inheritance_hooks'
 # require 'active_model/attribute_methods'
 ### Examples
 # ProductCategory < Enum
@@ -18,8 +18,6 @@ require 'trax/core/inheritance_hooks'
 # ProductCategory.new(1) => #{name: :clothing, :value => 1}
 
 class Enum < SimpleDelegator
-  include ::Trax::Core::InheritanceHooks
-
   class_attribute :allow_nil, :raise_on_invalid
 
   ### Class Methods ###
@@ -31,7 +29,7 @@ class Enum < SimpleDelegator
     raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => const_name) if self === name
     raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => val) if self === val
 
-    value_klass = self.const_set(const_name, Class.new(::EnumValueBlueprint){
+    value_klass = self.const_set(const_name, Class.new(::EnumValue){
       self.tag = name
       self.value = val
     })
@@ -137,11 +135,11 @@ class Enum < SimpleDelegator
   end
 
   ### Hooks ###
-  on_inherited do
-    instance_variable_set(:@_values_hash, ::Hash.new)
-    instance_variable_set(:@_names_hash, ::Hash.new)
-    self.allow_nil = false
-    self.raise_on_invalid = false
+  def self.inherited(subklass)
+    subklass.instance_variable_set(:@_values_hash, ::Hash.new)
+    subklass.instance_variable_set(:@_names_hash, ::Hash.new)
+    subklass.allow_nil = false
+    subklass.raise_on_invalid = false
   end
 
   ### Instance Methods ###

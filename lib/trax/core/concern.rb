@@ -22,7 +22,6 @@ module Trax
 
         trace = ::TracePoint.new(:end) do |tracepoint|
           if tracepoint.self == base
-
             trace.disable
 
             if self.instance_variable_defined?(:@_after_included_block)
