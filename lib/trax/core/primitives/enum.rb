@@ -160,7 +160,6 @@ class Enum < SimpleDelegator
   end
 
   def choice=(val)
-    # binding.pry
     @choice = valid_choice?(val) ? self.class[val] : nil
 
     raise ::Trax::Core::Errors::InvalidEnumValue.new(

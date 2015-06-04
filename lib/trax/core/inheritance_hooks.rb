@@ -38,6 +38,8 @@ module Trax
             end
 
             trace.enable
+
+            self
           end
         end
 

@@ -65,8 +65,5 @@ describe ::Enum do
         it { expect(subject.select_previous_value).to eq ::CategoryEnum.new(:shoes) }
       end
     end
-    # it { expect(subject.next_value.to_sym).to eq :shoes }
-    # it { expect(subject.previous_value.to_sym).to eq :default }
-
   end
 end
