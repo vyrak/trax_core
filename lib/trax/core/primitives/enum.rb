@@ -56,7 +56,7 @@ class Enum < SimpleDelegator
   end
 
   def self.formatted_choices
-    @formatted_choices ||= choices.each_with_object({}) do |hash, choice|
+    @formatted_choices ||= choices.each_with_object({}) do |choice, hash|
       hash[choice.to_i] = choice.to_s
     end
   end
@@ -155,7 +155,12 @@ class Enum < SimpleDelegator
     self.choice = val unless val.nil? && self.class.allow_nil
   end
 
+  def current_index
+    self.class.names.index(choice)
+  end
+
   def choice=(val)
+    # binding.pry
     @choice = valid_choice?(val) ? self.class[val] : nil
 
     raise ::Trax::Core::Errors::InvalidEnumValue.new(
@@ -168,6 +173,34 @@ class Enum < SimpleDelegator
 
   def __getobj__
     @choice || nil
+  end
+
+  def next_value
+    return choice if self.class.names.length == current_index
+    self.class.names[(current_index + 1)]
+  end
+
+  def next_value?
+    !(current_index == (self.class.names.length - 1))
+  end
+
+  #set choice if next value exists, return selected choi
+  def select_next_value
+    self.choice = next_value.to_sym if next_value?
+    self
+  end
+
+  def select_previous_value
+    self.choice = previous_value.to_sym if previous_value?
+    self
+  end
+
+  def previous_value
+    self.class.names[(current_index - 1)]
+  end
+
+  def previous_value?
+    !!current_index
   end
 
   def to_s

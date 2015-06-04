@@ -15,6 +15,8 @@ module Trax
         end
 
         trace.enable
+
+        base
       end
 
       def included(base = nil, &block)

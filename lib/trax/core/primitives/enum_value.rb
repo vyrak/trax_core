@@ -16,6 +16,10 @@ class EnumValue
     tag.to_s
   end
 
+  def self.to_sym
+    tag
+  end
+
   def self.to_i
     value
   end
