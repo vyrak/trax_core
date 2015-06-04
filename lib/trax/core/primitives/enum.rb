@@ -55,6 +55,12 @@ class Enum < SimpleDelegator
     @choices ||= self._values_hash.values
   end
 
+  def self.formatted_choices
+    @formatted_choices ||= choices.each_with_object({}) do |hash, choice|
+      hash[choice.to_i] = choice.to_s
+    end
+  end
+
   def self.select_values(*args)
     args.flat_compact_uniq!
     args.map{|arg| self[arg].to_i }
