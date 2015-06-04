@@ -1,6 +1,6 @@
 class Is
   def self.truthy?(val)
-    [TrueClass, FalseClass].include?(val)
+    [true, false].include?(val)
   end
 
   def self.numeric?(val)
