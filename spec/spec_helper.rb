@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'bundler'
 require 'simplecov'
-require 'pry'
 require 'trax_core'
 
 SimpleCov.start do
