@@ -17,11 +17,11 @@ module Trax
             # otherwise Class.new wont be caught by tracepoint statement below
             trace = ::TracePoint.new(:b_return) do |tracepoint|
               if tracepoint.self.class == Class
-                trace.disable
-
                 if self.instance_variable_defined?(:@_after_inherited_block)
                   subklass.instance_eval(&self.instance_variable_get(:@_after_inherited_block))
                 end
+
+                trace.disable
               end
             end
 
@@ -29,11 +29,11 @@ module Trax
           else
             trace = ::TracePoint.new(:end) do |tracepoint|
               if tracepoint.self == subklass
-                trace.disable
-
                 if self.instance_variable_defined?(:@_after_inherited_block)
                   subklass.instance_eval(&self.instance_variable_get(:@_after_inherited_block))
                 end
+
+                trace.disable
               end
             end
 

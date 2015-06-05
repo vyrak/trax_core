@@ -6,11 +6,11 @@ module Trax
 
         trace = ::TracePoint.new(:end) do |tracepoint|
           if tracepoint.self.singleton_class.included_modules.first == base
-            trace.disable
-
             if base.instance_variable_defined?(:@_after_extended_block)
               tracepoint.self.module_exec(base, &base.instance_variable_get(:@_after_extended_block))
             end
+
+            trace.disable
           end
         end
 
@@ -24,11 +24,11 @@ module Trax
 
         trace = ::TracePoint.new(:end) do |tracepoint|
           if tracepoint.self == base
-            trace.disable
-
             if self.instance_variable_defined?(:@_after_included_block)
               base.instance_eval(&self.instance_variable_get(:@_after_included_block))
             end
+
+            trace.disable
           end
         end
 
