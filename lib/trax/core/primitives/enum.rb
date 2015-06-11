@@ -81,6 +81,10 @@ class Enum < SimpleDelegator
     keys.each(&block)
   end
 
+  def self.each_pair(&block)
+    self._names_hash.each_pair(&block)
+  end
+
   def self.keys
     _names_hash.keys
   end
