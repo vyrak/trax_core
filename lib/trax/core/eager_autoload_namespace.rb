@@ -6,16 +6,8 @@ module Trax
         source_file_path = caller[0].partition(":")[0]
 
         base.module_eval do
-          extend ::ActiveSupport::Autoload
-
           @eager_autoload_filepath = source_file_path
         end
-
-        base.autoload_class_names.each do |klass|
-          base.autoload :"#{klass}"
-        end
-
-        base.eager_load!
       end
 
       def all
