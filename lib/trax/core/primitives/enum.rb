@@ -44,6 +44,9 @@ class Enum < SimpleDelegator
     elsif ::Is.symbolic?(val)
       val = val.to_sym if val.is_a?(String)
       self._names_hash[val]
+    elsif val.superclass.name == "EnumValue"
+      val = val.to_sym
+      self._names_hash[val]
     end
   end
 
