@@ -1,13 +1,9 @@
 module URIExtensions
   def join(*args)
-    self + args.join("/")
+    self + args.map{ |arg| arg.is_a?(::String) ? arg : arg.to_s }.join("/")
   end
 end
 
-class URI::HTTP
-  include URIExtensions
-end
-
-class URI::HTTPS
+class URI::Generic
   include URIExtensions
 end
