@@ -29,5 +29,7 @@ module Trax
     autoload :InheritanceHooks
     autoload :Mixin
     autoload :Mixable
+    autoload :NamedClass
+    autoload :NamedModule
   end
 end

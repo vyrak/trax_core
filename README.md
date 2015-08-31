@@ -2,43 +2,77 @@
 
 The active support for Trax / Trax components.
 
-### EagerAutoloadNamespace
+## Trax::Core::NamedClass
+**Create a non anonymous class via a fully qualified class name**
+*note namespace it is created in must exist prior to creation*
 
-Wish you could eager load all of the paths in a particular namespace directory,
-eagerly? Say you have the following directory tree you're trying to autoload:
+Trax::Core::NamedClass.new instead of Class.new differences
 
-whatever.rb
+1. Defines class within namespace, so no thing = some_module.const_set("Blah", Class.new) needed
+2. Allows you to access the created class name within the definition block, i.e.
 ``` ruby
-module Whatever
-  extend ::ActiveSupport::Autoload
+myklass = some_module.const_set("Blah", Class.new do
+  puts name
+end)
+=> nil
+```
 
-  eager_autoload do
-    autoload :Widget
-    autoload :Thing
+Will put nil, as its referencing the anonymous class. However:
+``` ruby
+::Trax::Core::NamedClass.new("SomeModule::Blah") do
+  puts name
+end
+=> "SomeModule::Blah"
+```
+Holds reference to actual class being created.
+
+3. Allows you to pass an options hash which gets evaluated as class_attribute accessor
+
+``` ruby
+module Html
+  class Element
   end
 end
 
-Whatever.eager_load!
+::Trax::Core::NamedClass.new(
+  "Html::DivWithDimensions",
+  Html::Element,
+  :default_height => "220px",
+  :default_width => "220px"
+)
+
+Html::Div.default_height => "220px"
+Html::Div.default_width => "220px"
 ```
-whatever/widget.rb
+
+^ is probably a bad example, but you get the idea. Also note param 2 is the class you
+want to inherit from, which differs from the Class.new api which expects 1st param
+to be the class you are inheriting from. Broke from that api since its optional,
+and the thing that is not optional with a named class, is obviously the name.
+
+## Trax::Core::NamedModule
+**Create a non anonymous module via a fully qualified module name**
+*note namespace it is created in must exist prior to creation*
+
+### examples: (by default, any module args passed after the name of the module will be applied via extend)
+**With Args:**
 ``` ruby
-module Whatever
-  module Widget
-  end
-end
+Trax::Core::NamedModule.new("Ecommerce::ItemExtensions", PricingExtension, ShippingExtension)
+
+=> mod = Ecommerce.const_set("ItemExtensions")
+   mod.extend(PricingExtension)
+   mod.extend(ShippingExtension)
 ```
 
-Now you just have to do:
-
+**With :extensions keyword**
 ``` ruby
-module Whatever
-  include ::Trax::Core::EagerAutoloadNamespace
-end
+Trax::Core::NamedModule.new("Ecommerce::ItemExtensions", :extensions => [::Ecommerce::PricingExtension])
 ```
 
-Note, it cant handle all caps namespaces, i.e. it would break if namespace were WIDGETS,
-as it just uses classify on the file base name to define the autoload block.
-
+**With :includes keyword**
+``` ruby
+Trax::Core::NamedModule.new("Ecommerce::ItemExtensions", :includes => [::Ecommerce::ShippingExtension])
+```
 
 ## Installation
 
