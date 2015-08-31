@@ -1,5 +1,4 @@
 require "active_support/core_ext/object/try"
-require 'pry'
 class Object
   def as!
     yield self
