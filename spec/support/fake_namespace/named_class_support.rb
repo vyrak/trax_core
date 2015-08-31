@@ -1,7 +1,3 @@
-module FakeNamespace
-
-end
-
 ::Trax::Core::NamedClass.new("FakeNamespace::Something", String)
 ::Trax::Core::NamedClass.new("FakeNamespace::SomeBlankClass")
 ::Trax::Core::NamedClass.new("FakeNamespace::Dmx") do
