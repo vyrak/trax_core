@@ -1,5 +1,5 @@
 require "active_support/core_ext/object/try"
-
+require 'pry'
 class Object
   def as!
     yield self
@@ -56,6 +56,15 @@ class Object
     self
   end
   alias_method :reset_instance_variables, :remove_instance_variables
+
+  def set_fully_qualified_constant(const_name, value)
+    segs = const_name.split("::")
+
+    raise(::StandardError.new("Set fully qualified constant requires a preexisting namespace to set under")) unless segs.length > 1
+
+    as, on = segs.pop, segs.join("::").constantize
+    on.const_set(as, value)
+  end
 
   #following method stolen from abrandoned https://rubygems.org/gems/try_chain
   def try_chain(*symbols)

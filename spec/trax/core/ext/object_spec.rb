@@ -24,6 +24,17 @@ describe ::Object do
     end
   end
 
+  describe ".set_fully_qualified_constant" do
+    it "sets a fully qualified constant" do
+      result = Object.set_fully_qualified_constant("SomeFakeClass::SomeFakeNestedClass", Class.new)
+      result.name.should eq "SomeFakeClass::SomeFakeNestedClass"
+    end
+
+    it "raises error if no valid namespace to set constant upon is passed" do
+      expect{Object.set_fully_qualified_constant("SomeFakeNestedClass", Class.new)}.to raise_error(StandardError)
+    end
+  end
+
   describe ".remove_instance_variables" do
     it "reset instance variables by symbol names" do
       obj = SomeFakeClass.new
