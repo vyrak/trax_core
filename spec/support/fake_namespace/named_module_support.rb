@@ -19,3 +19,7 @@ end
 end
 
 ::Trax::Core::NamedModule.new("FakeNamespace::ThingWithIncludes", :includes => [PricingExtension])
+
+::Trax::Core::NamedModule.new("FakeNamespace::ThingWithAttributes", default_setting_for_something: 'anything') do
+
+end

@@ -16,6 +16,11 @@ module Trax
           end
         end)
 
+        options.each_pair do |k,v|
+          module_object.instance_variable_set("@#{k}", v)
+          module_object.singleton_class.__send__(:attr_reader, k)
+        end unless options.blank?
+
         module_object.module_eval(&block) if block_given?
 
         includes = [options.extract!(:includes).fetch(:includes) { nil }].compact.flatten
