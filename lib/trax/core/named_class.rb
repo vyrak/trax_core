@@ -11,7 +11,7 @@ module Trax
           klass.__send__("#{k}=", v)
         end unless options.blank?
 
-        klass.instance_eval(&block) if block_given?
+        klass.class_eval(&block) if block_given?
 
         klass
       end
