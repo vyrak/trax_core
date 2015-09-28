@@ -21,9 +21,11 @@ module Trax
     autoload :Configuration
     autoload :Concern
     autoload :Definition
+    autoload :Definitions
     autoload :EagerLoadNamespace
     autoload :EagerAutoloadNamespace
     autoload :Errors
+    autoload :Fields
     autoload :FS
     autoload :HasMixins
     autoload :InheritanceHooks
@@ -31,5 +33,6 @@ module Trax
     autoload :Mixable
     autoload :NamedClass
     autoload :NamedModule
+    autoload :Types
   end
 end
