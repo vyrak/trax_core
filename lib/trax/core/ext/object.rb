@@ -59,6 +59,10 @@ class Object
   def set_fully_qualified_constant(const_name, value)
     segs = const_name.split("::")
 
+    puts const_name
+
+    puts segs.inspect
+
     raise(::StandardError.new("Set fully qualified constant requires a preexisting namespace to set under")) unless segs.length > 1
 
     as, on = segs.pop, segs.join("::").constantize
