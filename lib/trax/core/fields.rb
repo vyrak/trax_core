@@ -17,7 +17,7 @@ module Trax
 
       def by_type(*type_names)
         all.select{|k,v| type_names.include?(v.type) }
-        .try(:with_indifferent_access)
+           .try(:with_indifferent_access)
       end
 
       def each(&block)
