@@ -18,7 +18,8 @@ module Trax
           :boolean_property => nil,
           :string_property  => "",
           :struct_property  => {},
-          :enum_property    => nil
+          :enum_property    => nil,
+          :integer_property => nil
         }.with_indifferent_access.freeze
 
         def self.fields_module
@@ -39,6 +40,13 @@ module Trax
           options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
           property(name.to_sym, *args, **options)
           coerce_key(name.to_sym, ->(value) { !!value })
+        end
+
+        def self.integer_property(name, *args, **options, &block)
+          name = name.is_a?(Symbol) ? name.to_s : name
+          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
+          property(name.to_sym, *args, **options)
+          coerce_key(name.to_sym, Integer)
         end
 
         def self.string_property(name, *args, **options, &block)
@@ -90,6 +98,7 @@ module Trax
         class << self
           alias :boolean :boolean_property
           alias :enum :enum_property
+          alias :integer :integer_property
           alias :struct :struct_property
           alias :string :string_property
         end
