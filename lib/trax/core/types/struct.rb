@@ -25,7 +25,6 @@ module Trax
         def self.fields_module
           @fields_module ||= begin
             module_name = "#{self.name}::Fields"
-            binding.pry
             ::Trax::Core::NamedModule.new(module_name, ::Trax::Core::Fields)
           end
         end
