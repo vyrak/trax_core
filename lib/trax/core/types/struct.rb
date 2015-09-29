@@ -58,19 +58,35 @@ module Trax
         def self.struct_property(name, *args, **options, &block)
           name = name.is_a?(Symbol) ? name.to_s : name
           klass_name = "#{fields_module.name.underscore}/#{name}".camelize
-          struct_klass = ::Trax::Core::NamedClass.new(klass_name, Trax::Core::Types::Struct, :parent_definition => self, &block)
+
+          attribute_klass = if options.key?(:extend)
+            _klass_prototype = options[:extend].constantize.clone
+            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
+            _klass
+          else
+            ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Struct, :parent_definition => self, &block)
+          end
+
           options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
           property(name.to_sym, *args, **options)
-          coerce_key(name.to_sym, struct_klass)
+          coerce_key(name.to_sym, attribute_klass)
         end
 
         def self.enum_property(name, *args, **options, &block)
           name = name.is_a?(Symbol) ? name.to_s : name
           klass_name = "#{fields_module.name.underscore}/#{name}".camelize
-          enum_klass = ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Enum, :parent_definition => self, &block)
+
+          attribute_klass = if options.key?(:extend)
+            _klass_prototype = options[:extend].constantize.clone
+            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
+            _klass
+          else
+            ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Enum, :parent_definition => self, &block)
+          end
+
           options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
           property(name.to_sym, *args, **options)
-          coerce_key(name.to_sym, enum_klass)
+          coerce_key(name.to_sym, attribute_klass)
         end
 
         def self.to_schema

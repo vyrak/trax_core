@@ -14,7 +14,7 @@ module Defs
     boolean :is_active, :default => false
   end
 
-  struct :ShoesAttributes, :class_name => "Defs::ProductAttributes" do
+  struct :ShoesAttributes, :extend => "Defs::ProductAttributes" do
     enum :size do
       define :mens_8,  1
       define :mens_9,  2
