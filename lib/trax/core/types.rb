@@ -6,6 +6,8 @@ module Trax
       autoload :Enum
       autoload :EnumValue
       autoload :Struct
+      autoload :String
+      autoload :Value
     end
   end
 end

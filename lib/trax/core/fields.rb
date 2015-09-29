@@ -1,6 +1,8 @@
 module Trax
   module Core
     module Fields
+      extend ::Enumerable
+
       def self.extended(base)
         base.module_attribute(:_blank_fields_hash) {
           ::Hashie::Mash.new

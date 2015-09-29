@@ -22,10 +22,25 @@ module Trax
           :integer_property => nil
         }.with_indifferent_access.freeze
 
+        def self.initialize_clone(source)
+          puts "CLONING"
+          instance_variable_set("@fields_module", source.fields_module)
+          super
+        end
+
+
         def self.fields_module
           @fields_module ||= begin
             module_name = "#{self.name}::Fields"
             ::Trax::Core::NamedModule.new(module_name, ::Trax::Core::Fields)
+            # binding.pry
+            # mod = if const_defined?(module_name)
+            #         const_get(module_name)
+            #       else
+            #        ::Trax::Core::NamedModule.new(module_name, ::Trax::Core::Fields) unless const_defined?(module_name)
+            #       end
+            #
+            # mod
           end
         end
 
@@ -50,9 +65,20 @@ module Trax
 
         def self.string_property(name, *args, **options, &block)
           name = name.is_a?(Symbol) ? name.to_s : name
+
+          klass_name = "#{fields_module.name.underscore}/#{name}".camelize
+
+          attribute_klass = if options.key?(:extend)
+            _klass_prototype = options[:extend].constantize.clone
+            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
+            _klass
+          else
+            ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::String, :parent_definition => self, &block)
+          end
+
           options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
           property(name.to_sym, *args, **options)
-          coerce_key(name.to_sym, String)
+          coerce_key(name.to_sym, attribute_klass)
         end
 
         def self.struct_property(name, *args, **options, &block)
@@ -76,13 +102,15 @@ module Trax
           name = name.is_a?(Symbol) ? name.to_s : name
           klass_name = "#{fields_module.name.underscore}/#{name}".camelize
 
-          attribute_klass = if options.key?(:extend)
-            _klass_prototype = options[:extend].constantize.clone
-            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
-            _klass
-          else
-            ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Enum, :parent_definition => self, &block)
-          end
+          attribute_klass = build_attribute_klass_for_type(:enum, name, *args, **options, &block)
+
+          # attribute_klass = if options.key?(:extend)
+          #   _klass_prototype = options[:extend].constantize.clone
+          #   _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
+          #   _klass
+          # else
+          #   ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Enum, :parent_definition => self, &block)
+          # end
 
           options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
           property(name.to_sym, *args, **options)
@@ -120,6 +148,26 @@ module Trax
 
         def value
           self
+        end
+
+        private
+
+        def self.build_attribute_class_for_type(type_name, *args, **options, &block)
+          klass_name = "#{fields_module.name.underscore}/#{name}".camelize
+
+          attribute_klass = if options.key?(:extend)
+            _klass_prototype = options[:extend].constantize.clone
+            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
+            _klass
+          else
+            ::Trax::Core::NamedClass.new(klass_name, "::Trax::Core::Types::#{type_name.to_s.classify}".constantize, :parent_definition => self, &block)
+          end
+
+          attribute_klass
+
+          # options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
+          # property(name.to_sym, *args, **options)
+          # coerce_key(name.to_sym, attribute_klass)
         end
       end
     end
