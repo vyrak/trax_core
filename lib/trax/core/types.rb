@@ -7,7 +7,7 @@ module Trax
       autoload :EnumValue
       autoload :Struct
       autoload :String
-      autoload :Value
+      autoload :ValueObject
     end
   end
 end
