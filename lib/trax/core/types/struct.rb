@@ -47,6 +47,10 @@ module Trax
           define_attribute_class_for_type(:boolean, name, *args, :coerce => ->(value){!!value}, **options, &block)
         end
 
+        def self.enum_property(name, *args, **options, &block)
+          define_attribute_class_for_type(:enum, name, *args, :coerce => true, **options, &block)
+        end
+
         def self.float_property(name, *args, **options, &block)
           define_attribute_class_for_type(:float, name, *args, :coerce => ::Float, **options, &block)
         end
@@ -61,10 +65,6 @@ module Trax
 
         def self.struct_property(name, *args, **options, &block)
           define_attribute_class_for_type(:struct, name, *args, :coerce => true, **options, &block)
-        end
-
-        def self.enum_property(name, *args, **options, &block)
-          define_attribute_class_for_type(:enum, name, *args, :coerce => true, **options, &block)
         end
 
         def self.to_schema

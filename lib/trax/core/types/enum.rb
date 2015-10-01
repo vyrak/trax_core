@@ -1,18 +1,10 @@
-# require 'trax/core/inheritance_hooks'
-# require 'active_model/attribute_methods'
 ### Examples
 # ProductCategory < Enum
-#   CLOTHING = 1
-#   SHOES = 2
-#   ACCESSORIES = 3
+#   define :clothing,    1
+#   define :shoes,       2
+#   define :accessories, 3
 # end
 # ProductCategory.keys => [:clothing, :shoes, :accessories]
-
-# StoreYearlyRevenue < Enum
-#   :'0_100000' = 1
-#   :'100000_999999' = 2
-#   :'1000000_99999999' = 3
-# end
 
 ### Accepts either an integer or the name when setting a value
 # ProductCategory.new(1) => #{name: :clothing, :value => 1}

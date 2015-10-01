@@ -3,6 +3,10 @@ require 'spec_helper'
 describe ::Trax::Core::Definitions do
   subject { ::Defs }
 
+  context "fields" do
+    it { subject[:category].should eq subject::Category }
+  end
+
   context "enum" do
     let(:test_subject) { subject::Category.new(1) }
 
