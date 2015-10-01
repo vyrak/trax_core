@@ -143,8 +143,16 @@ module Trax
 
         ### Hooks ###
         def self.inherited(subklass)
-          subklass.instance_variable_set(:@_values_hash, ::Hash.new)
-          subklass.instance_variable_set(:@_names_hash, ::Hash.new)
+          super(subklass)
+
+          if self.instance_variable_defined?(:@_values_hash)
+            subklass.instance_variable_set(:@_values_hash, ::Hash.new.merge(@_values_hash.deep_dup))
+            subklass.instance_variable_set(:@_names_hash, ::Hash.new.merge(@_names_hash.deep_dup))
+          else
+            subklass.instance_variable_set(:@_values_hash, ::Hash.new)
+            subklass.instance_variable_set(:@_names_hash, ::Hash.new)
+          end
+
           subklass.allow_nil = false
           subklass.raise_on_invalid = false
         end
