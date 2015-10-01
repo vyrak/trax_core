@@ -10,8 +10,10 @@ module Defs
 
   struct :ProductAttributes do
     string :name, :default => ""
-    integer :price, :default => ""
+    float :price, :default => 9.99
+    integer :quantity_in_stock, :default => 0
     boolean :is_active, :default => false
+    array :categories, :of => "Defs::Category", :default => []
   end
 
   struct :ShoesAttributes, :extend => "Defs::ProductAttributes" do

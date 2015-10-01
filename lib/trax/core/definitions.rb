@@ -2,9 +2,7 @@ module Trax
   module Core
     module Definitions
       def self.extended(base)
-        base.module_attribute(:_definitions) {
-          ::Hashie::Mash.new
-        }
+        base.extend(Trax::Core::Fields)
       end
 
       def enum(klass_name, **options, &block)
@@ -27,22 +25,6 @@ module Trax
         end
 
         attribute_klass
-      end
-
-      def all
-        @all ||= begin
-          constants.map{|const_name| const_get(const_name) }.each_with_object(self._definitions) do |klass, result|
-            result[klass.name.symbolize] = klass
-          end
-        end
-      end
-
-      def values
-        all.values
-      end
-
-      def [](_name)
-        const_get(_name.to_s.camelize)
       end
     end
   end
