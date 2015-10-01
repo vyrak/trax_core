@@ -1,11 +1,8 @@
-require 'trax/core/abstract_methods'
 module Trax
   module Core
     module Types
       class EnumValue
-        include ::Trax::Core::AbstractMethods
-
-        abstract_class_attribute :tag, :value
+        class_attribute :tag, :value
 
         def self.as_json(options={})
           tag.to_s
