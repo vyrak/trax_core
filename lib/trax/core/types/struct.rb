@@ -22,25 +22,12 @@ module Trax
           :integer_property => nil
         }.with_indifferent_access.freeze
 
-        def self.initialize_clone(source)
-          puts "CLONING"
-          instance_variable_set("@fields_module", source.fields_module)
-          super
-        end
-
-
         def self.fields_module
           @fields_module ||= begin
             module_name = "#{self.name}::Fields"
-            ::Trax::Core::NamedModule.new(module_name, ::Trax::Core::Fields)
-            # binding.pry
-            # mod = if const_defined?(module_name)
-            #         const_get(module_name)
-            #       else
-            #        ::Trax::Core::NamedModule.new(module_name, ::Trax::Core::Fields) unless const_defined?(module_name)
-            #       end
-            #
-            # mod
+            mod = ::Trax::Core::NamedModule.new(module_name, ::Trax::Core::Fields.clone)
+            mod.include(superclass.fields) if superclass.instance_variable_defined?("@fields_module")
+            mod
           end
         end
 
@@ -49,11 +36,7 @@ module Trax
         end
 
         def self.boolean_property(name, *args, **options, &block)
-          name = name.is_a?(Symbol) ? name.to_s : name
-          klass_name = "#{fields_module.name.underscore}/#{name}".camelize
-          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
-          property(name.to_sym, *args, **options)
-          coerce_key(name.to_sym, ->(value) { !!value })
+          define_attribute_class_for_type(:boolean, name, *args, coerce:->(value) { !!value }, **options, &block)
         end
 
         def self.integer_property(name, *args, **options, &block)
@@ -64,6 +47,7 @@ module Trax
         end
 
         def self.string_property(name, *args, **options, &block)
+          define_attribute_class_for_type(:struct, name, *args, coerce:true, **options, &block)
           name = name.is_a?(Symbol) ? name.to_s : name
 
           klass_name = "#{fields_module.name.underscore}/#{name}".camelize
@@ -82,39 +66,25 @@ module Trax
         end
 
         def self.struct_property(name, *args, **options, &block)
-          name = name.is_a?(Symbol) ? name.to_s : name
-          klass_name = "#{fields_module.name.underscore}/#{name}".camelize
-
-          attribute_klass = if options.key?(:extend)
-            _klass_prototype = options[:extend].constantize.clone
-            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
-            _klass
-          else
-            ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Struct, :parent_definition => self, &block)
-          end
-
-          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
-          property(name.to_sym, *args, **options)
-          coerce_key(name.to_sym, attribute_klass)
-        end
-
-        def self.enum_property(name, *args, **options, &block)
-          name = name.is_a?(Symbol) ? name.to_s : name
-          klass_name = "#{fields_module.name.underscore}/#{name}".camelize
-
-          attribute_klass = build_attribute_klass_for_type(:enum, name, *args, **options, &block)
-
+          define_attribute_class_for_type(:struct, name, *args, coerce:true, **options, &block)
+          # name = name.is_a?(Symbol) ? name.to_s : name
+          # klass_name = "#{fields_module.name.underscore}/#{name}".camelize
+          #
           # attribute_klass = if options.key?(:extend)
           #   _klass_prototype = options[:extend].constantize.clone
           #   _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
           #   _klass
           # else
-          #   ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Enum, :parent_definition => self, &block)
+          #   ::Trax::Core::NamedClass.new(klass_name, ::Trax::Core::Types::Struct, :parent_definition => self, &block)
           # end
+          #
+          # options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
+          # property(name.to_sym, *args, **options)
+          # coerce_key(name.to_sym, attribute_klass)
+        end
 
-          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
-          property(name.to_sym, *args, **options)
-          coerce_key(name.to_sym, attribute_klass)
+        def self.enum_property(name, *args, **options, &block)
+          define_attribute_class_for_type(:enum, name, *args, coerce:true, **options, &block)
         end
 
         def self.to_schema
@@ -152,8 +122,11 @@ module Trax
 
         private
 
-        def self.build_attribute_class_for_type(type_name, *args, **options, &block)
-          klass_name = "#{fields_module.name.underscore}/#{name}".camelize
+        #By default, strings/int/bool wont get cast to value objects
+        #mainly for the sake of performance/avoid unneccessary object allocation
+        def self.define_attribute_class_for_type(type_name, property_name, *args, coerce:false, **options, &block)
+          name = name.is_a?(Symbol) ? name.to_s : name
+          klass_name = "#{fields_module.name.underscore}/#{property_name}".camelize
 
           attribute_klass = if options.key?(:extend)
             _klass_prototype = options[:extend].constantize.clone
@@ -163,11 +136,16 @@ module Trax
             ::Trax::Core::NamedClass.new(klass_name, "::Trax::Core::Types::#{type_name.to_s.classify}".constantize, :parent_definition => self, &block)
           end
 
-          attribute_klass
+          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
+          property(property_name.to_sym, *args, **options)
 
-          # options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
-          # property(name.to_sym, *args, **options)
-          # coerce_key(name.to_sym, attribute_klass)
+          if coerce.is_a?(Proc)
+            coerce_key(property_name.to_sym, &coerce)
+          elsif [ Integer, Fixnum, String ].include?(coerce)
+            coerce_key(property_name.to_sym, coerce)
+          elsif coerce
+            coerce_key(property_name.to_sym, attribute_klass)
+          end
         end
       end
     end
