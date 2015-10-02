@@ -111,7 +111,7 @@ module Trax
           klass_name = "#{fields_module.name.underscore}/#{property_name}".camelize
 
           attribute_klass = if options.key?(:extend)
-            _klass_prototype = options[:extend].constantize.clone
+            _klass_prototype = options[:extend].constantize
             _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
             _klass
           else
