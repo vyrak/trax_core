@@ -33,6 +33,7 @@ module Trax
     autoload :Mixable
     autoload :NamedClass
     autoload :NamedModule
+    autoload :SilenceWarnings
     autoload :Types
   end
 end
