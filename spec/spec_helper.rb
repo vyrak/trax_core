@@ -10,6 +10,9 @@ end
 RSpec.configure do |config|
   config.before(:suite) do
   end
+
+  config.filter_run :focus
+  config.run_all_when_everything_filtered
 end
 
 Bundler.require(:default, :development, :test)
