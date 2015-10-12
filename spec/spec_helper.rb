@@ -12,7 +12,7 @@ RSpec.configure do |config|
   end
 
   config.filter_run :focus
-  config.run_all_when_everything_filtered
+  config.run_all_when_everything_filtered = true
 end
 
 Bundler.require(:default, :development, :test)
