@@ -11,7 +11,7 @@ describe ::Trax::Core::Types::Struct do
         string :ca, :default => "eh"
 
         struct :territories do
-          string :en, :default => ["US", "GB"]
+          string :en, :default => "US"
         end
       end
     end
@@ -23,7 +23,7 @@ describe ::Trax::Core::Types::Struct do
   it { expect(subject.en).to eq "something" }
   it { expect(subject.da).to eq "" }
   it { expect(subject.ca).to eq "eh" }
-  it { expect(subject.territories.en).to eq ["US", "GB"] }
+  it { expect(subject.territories.en).to eq "US" }
 
   context "unknown value" do
     subject { "::MyFakeStructNamespace::Locale".constantize.new(:blah => "something") }

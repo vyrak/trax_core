@@ -15,13 +15,13 @@ module Trax
         # It defeats the whole purpose of being a 'struct'
         # if we fail to do so, and it makes our data far more error prone
         DEFAULT_VALUES_FOR_PROPERTY_TYPES = {
-          :array_property   => [],
-          :boolean_property => nil,
-          :float_property   => 0.0,
-          :string_property  => "",
-          :struct_property  => {},
-          :enum_property    => nil,
-          :integer_property => nil
+          :array   => [],
+          :boolean => nil,
+          :float   => 0.0,
+          :string  => "",
+          :struct  => {},
+          :enum    => nil,
+          :integer => nil
         }.with_indifferent_access.freeze
 
         def self.fields_module
@@ -118,7 +118,7 @@ module Trax
             ::Trax::Core::NamedClass.new(klass_name, "::Trax::Core::Types::#{type_name.to_s.classify}".constantize, :parent_definition => self, &block)
           end
 
-          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[__method__]
+          options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[type_name]
           property(property_name.to_sym, *args, **options)
 
           if coerce.is_a?(::Proc)
