@@ -9,8 +9,9 @@ module Trax
       autoload :EnumValue
       autoload :Float
       autoload :Integer
-      autoload :Struct
+      autoload :Json
       autoload :String
+      autoload :Struct
       autoload :ValueObject
     end
   end
