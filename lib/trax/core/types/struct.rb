@@ -107,11 +107,11 @@ module Trax
         #By default, strings/int/bool wont get cast to value objects
         #mainly for the sake of performance/avoid unneccessary object allocation
         def self.define_attribute_class_for_type(type_name, property_name, *args, coerce:false, **options, &block)
-          name = name.is_a?(Symbol) ? name.to_s : name
+          name = name.is_a?(::Symbol) ? name.to_s : name
           klass_name = "#{fields_module.name.underscore}/#{property_name}".camelize
 
           attribute_klass = if options.key?(:extend)
-            _klass_prototype = options[:extend].constantize
+            _klass_prototype = options[:extend].is_a?(::String) ? options[:extend].safe_constantize : options[:extend]
             _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
             _klass
           else
