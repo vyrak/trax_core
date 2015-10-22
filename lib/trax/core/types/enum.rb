@@ -15,7 +15,7 @@ module Trax
         class_attribute :allow_nil, :raise_on_invalid
 
         ### Class Methods ###
-        def self.define_enum_value(const_name, val=nil)
+        def self.define_enum_value(const_name, val=nil, **attributes)
           name = "#{const_name}".underscore.to_sym
           const_name = name.to_s.camelize
           val = (self._values_hash.length + 1) if val.nil?
@@ -23,25 +23,18 @@ module Trax
           raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => const_name) if self === name
           raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => val) if self === val
 
-          value_klass = self.const_set(const_name, ::Class.new(::Trax::Core::Types::EnumValue){
+          value_klass = ::Trax::Core::NamedClass.new("#{self.name}::#{const_name}", ::Trax::Core::Types::EnumValue){
             self.tag = name
             self.value = val
-          })
+            self.attributes = attributes
+          }
 
           self._values_hash[val] = value_klass
           self._names_hash[name] = value_klass
         end
 
         def self.[](val)
-          if ::Is.numeric?(val)
-            self._values_hash[val]
-          elsif ::Is.symbolic?(val)
-            val = val.to_sym if val.is_a?(::String)
-            self._names_hash[val]
-          elsif val.superclass.name == "Trax::Core::Types::EnumValue"
-            val = val.to_sym
-            self._names_hash[val]
-          end
+          find_enum_value(val)
         end
 
         def self.as_json(options={})
@@ -61,6 +54,23 @@ module Trax
         def self.select_values(*args)
           args.flat_compact_uniq!
           args.map{|arg| self[arg].to_i }
+        end
+
+        def self.select_enum_values(*args)
+          args.flat_compact_uniq!
+          args.map{ |arg| find_enum_value(arg) }.compact
+        end
+
+        def self.find_enum_value(val)
+          if ::Is.numeric?(val)
+            self._values_hash[val]
+          elsif ::Is.symbolic?(val)
+            val = val.to_sym if val.is_a?(::String)
+            self._names_hash[val]
+          elsif val.superclass.name == "Trax::Core::Types::EnumValue"
+            val = val.to_sym
+            self._names_hash[val]
+          end
         end
 
         def self.define(*args)

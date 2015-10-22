@@ -18,6 +18,7 @@ module Trax
     extend ::ActiveSupport::Autoload
 
     autoload :AbstractMethods
+    autoload :Blueprint
     autoload :Configuration
     autoload :Concern
     autoload :Definition

@@ -60,7 +60,7 @@ class Object
     segs = const_name.split("::")
 
     raise(::StandardError.new("Set fully qualified constant requires a preexisting namespace to set under")) unless segs.length > 1
-    
+
     as, on = segs.pop, segs.join("::").constantize
     on.const_set(as, value)
   end

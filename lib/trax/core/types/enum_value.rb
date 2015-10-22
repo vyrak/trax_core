@@ -2,7 +2,12 @@ module Trax
   module Core
     module Types
       class EnumValue
-        class_attribute :tag, :value
+        def self.inherited(subclass)
+          super(subclass)
+          self.class_attribute(:tag)
+          self.class_attribute(:value)
+          self.class_attribute(:attributes)
+        end
 
         def self.as_json(options={})
           tag.to_s
@@ -26,6 +31,10 @@ module Trax
 
         def self.is_enum_value?(val)
           val == parent
+        end
+
+        def self.[](attribute_name)
+          attributes[attribute_name]
         end
 
         def self.to_schema
