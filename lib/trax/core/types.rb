@@ -5,6 +5,7 @@ module Trax
 
       autoload :Array
       autoload :ArrayOf
+      autoload :Behaviors
       autoload :Boolean
       autoload :Enum
       autoload :EnumValue
