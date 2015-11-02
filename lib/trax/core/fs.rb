@@ -216,6 +216,14 @@ module Trax
           return sample[0,4] == "GIF8"
         end
 
+        def name
+          basename.to_s
+        end
+
+        def name_without_extension
+          name.split('.')[0]
+        end
+
         def image?
           bitmap? || gif? || jpeg?
         end

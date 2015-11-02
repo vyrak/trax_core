@@ -5,6 +5,13 @@ module Trax
         def self.type
           :array
         end
+
+        def self.of(klass)
+          return ::Class.new(self) do
+            include ::Trax::Core::Types::Behaviors::ArrayOfMembers
+            self.member_class = klass
+          end
+        end
       end
     end
   end
