@@ -4,7 +4,7 @@ describe ::Trax::Core::HasDependencies do
   before(:all) do
     class MyFakeItem
       include ::Trax::Core::HasDependencies
-      self._depends_on_config[:pass_options_to_super] = true
+
       attr_reader :my_options
 
       def initialize(title, body, **options)
@@ -13,7 +13,18 @@ describe ::Trax::Core::HasDependencies do
         @my_options = options
       end
 
-      depends_on :organization
+      depends_on :organization, :pass_options_to_super => true
+    end
+
+    class MyFakeItemThatAcceptsNoOptions
+      include ::Trax::Core::HasDependencies
+
+      def initialize(title, body)
+        @title = title
+        @body = body
+      end
+
+      depends_on :organization, :pass_options_to_super => false
     end
 
     class MyFakeOrganization < Struct.new(:name)
@@ -37,5 +48,13 @@ describe ::Trax::Core::HasDependencies do
 
   it "rips out dependency keys from options when setting them" do
     expect(my_fake_item.my_options).to_not have_key('organization')
+  end
+
+  context "no options accepted by super intialize" do
+    let(:my_fake_item) { ::MyFakeItemThatAcceptsNoOptions.new("mytitle", "mybody", :organization => organization) }
+
+    it "sets instance variables from dependency keys" do
+      expect(my_fake_item.organization).to eq(organization)
+    end
   end
 end
