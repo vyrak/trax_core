@@ -93,6 +93,15 @@ module Trax
         }
       end
 
+      class MissingRequiredDependency < ::Trax::Core::Errors::Base
+        argument :source
+        argument :missing_dependencies
+
+        message {
+          "#{source} was initialized without required dependencies, #{missing_dependencies.join(', ')}"
+        }
+      end
+
       class MixinNotRegistered < ::Trax::Core::Errors::Base
         argument :mixin
         argument :source

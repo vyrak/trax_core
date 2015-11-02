@@ -29,6 +29,7 @@ module Trax
     autoload :Fields
     autoload :FS
     autoload :HasMixins
+    autoload :HasDependencies
     autoload :InheritanceHooks
     autoload :Mixin
     autoload :Mixable
