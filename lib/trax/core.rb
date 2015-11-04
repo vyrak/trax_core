@@ -37,5 +37,6 @@ module Trax
     autoload :NamedModule
     autoload :SilenceWarnings
     autoload :Types
+    autoload :PathPermutations
   end
 end
