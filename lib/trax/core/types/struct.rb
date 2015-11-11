@@ -17,11 +17,12 @@ module Trax
         DEFAULT_VALUES_FOR_PROPERTY_TYPES = {
           :array   => [],
           :boolean => nil,
-          :float   => 0.0,
-          :string  => "",
-          :struct  => {},
           :enum    => nil,
-          :integer => nil
+          :float   => 0.0,
+          :integer => nil,
+          :json   => {},
+          :string  => "",
+          :struct  => {}
         }.with_indifferent_access.freeze
 
         def self.fields_module
@@ -59,6 +60,10 @@ module Trax
           define_attribute_class_for_type(:integer, name, *args, :coerce => ::Integer, **options, &block)
         end
 
+        def self.json_property(name, *args, **options, &block)
+          define_attribute_class_for_type(:json, name, *args, **options, &block)
+        end
+
         def self.string_property(name, *args, **options, &block)
           define_attribute_class_for_type(:string, name, *args, :coerce => ::String, **options, &block)
         end
@@ -94,8 +99,9 @@ module Trax
           alias :enum :enum_property
           alias :float :float_property
           alias :integer :integer_property
-          alias :struct :struct_property
+          alias :json :json_property
           alias :string :string_property
+          alias :struct :struct_property
         end
 
         def value
