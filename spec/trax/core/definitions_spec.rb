@@ -28,7 +28,7 @@ describe ::Trax::Core::Definitions do
     end
 
     context "array" do
-      it { expect(subject::ProductAttributes.new.categories).to be_a(Array) }
+      it { expect(subject::ProductAttributes.new.categories.__getobj__).to be_a(::Array) }
       context "it instantiates members into objects if provided" do
         it { expect(subject::ProductAttributes.new(:categories => [ :clothing ]).categories[0].to_i).to eq 2 }
         it { expect(subject::ProductAttributes.new(:categories => [ 2 ]).categories[0].to_s).to eq "clothing" }

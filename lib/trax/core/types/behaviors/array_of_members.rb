@@ -8,7 +8,7 @@ module Trax
           included do
             include ::Enumerable
 
-            class_attribute :member_class
+            class_attribute :member_class unless self.respond_to?(:member_class) && self.member_class
           end
 
           def initialize(*args)

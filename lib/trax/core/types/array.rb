@@ -10,6 +10,7 @@ module Trax
           return ::Class.new(self) do
             include ::Trax::Core::Types::Behaviors::ArrayOfMembers
             self.member_class = klass
+            self
           end
         end
       end

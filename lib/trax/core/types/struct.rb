@@ -15,14 +15,15 @@ module Trax
         # It defeats the whole purpose of being a 'struct'
         # if we fail to do so, and it makes our data far more error prone
         DEFAULT_VALUES_FOR_PROPERTY_TYPES = {
-          :array   => [],
-          :boolean => nil,
-          :enum    => nil,
-          :float   => 0.0,
-          :integer => nil,
-          :json   => {},
-          :string  => "",
-          :struct  => {}
+          :array    => [],
+          :array_of => [],
+          :boolean  => nil,
+          :enum     => nil,
+          :float    => 0.0,
+          :integer  => nil,
+          :json     => {},
+          :string   => "",
+          :struct   => {}
         }.with_indifferent_access.freeze
 
         def self.fields_module
@@ -39,9 +40,11 @@ module Trax
         end
 
         def self.array_property(name, *args, of:false, **options, &block)
-          of_object = of && of.is_a?(::String) ? of.safe_constantize : of
-          coercer = of_object ? ::Array[of_object] : ::Array
-          define_attribute_class_for_type(:array, name, *args, :coerce => coercer, **options, &block)
+          of_object = of && of.is_a?(::String) ? const_get(of) : of
+          coercer = of_object ? true : ::Array
+          options.merge!(:member_class => of_object) if of
+          array_or_array_of = of ? :array_of : :array
+          define_attribute_class_for_type(array_or_array_of, name, *args, :coerce => coercer, **options, &block)
         end
 
         def self.boolean_property(name, *args, **options, &block)
@@ -118,10 +121,10 @@ module Trax
 
           attribute_klass = if options.key?(:extend)
             _klass_prototype = options[:extend].is_a?(::String) ? options[:extend].safe_constantize : options[:extend]
-            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, &block)
+            _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, **options, &block)
             _klass
           else
-            ::Trax::Core::NamedClass.new(klass_name, "::Trax::Core::Types::#{type_name.to_s.classify}".constantize, :parent_definition => self, &block)
+            ::Trax::Core::NamedClass.new(klass_name, "::Trax::Core::Types::#{type_name.to_s.classify}".constantize, :parent_definition => self, **options, &block)
           end
 
           options[:default] = options.key?(:default) ? options[:default] : DEFAULT_VALUES_FOR_PROPERTY_TYPES[type_name]
