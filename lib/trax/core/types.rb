@@ -14,6 +14,7 @@ module Trax
       autoload :Json
       autoload :String
       autoload :Struct
+      autoload :Time
       autoload :ValueObject
     end
   end

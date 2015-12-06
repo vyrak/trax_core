@@ -1,4 +1,5 @@
 require 'active_support/all'
+require 'wannabe_bool'
 require_relative './core/fs'
 require_relative './core/ext/array'
 require_relative './core/ext/class'

@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe ::Trax::Core::Types::Struct do
   before(:all) do
+
     module MyFakeStructNamespace
       extend ::Trax::Core::Definitions
 
@@ -13,6 +14,8 @@ describe ::Trax::Core::Types::Struct do
           define :Europe,        3
           define :Asia,          4
         end
+
+        time :created_at
       end
 
       struct :Locale do
@@ -26,6 +29,8 @@ describe ::Trax::Core::Types::Struct do
 
         array :locations, :of => "MyFakeStructNamespace::Location"
 
+        boolean :is_whatever, :default => true
+
         json :phone_formats
         json :date_formats, :default => {:en_US => "%m-%d-%y"}
       end
@@ -33,6 +38,13 @@ describe ::Trax::Core::Types::Struct do
   end
 
   subject { "::MyFakeStructNamespace::Locale".constantize.new(:en => "something") }
+
+  let!(:fake_time1) {
+    @fake_time1 = ::Time.stub(:now).and_return(::Time.mktime(1970,1,1))
+  }
+  let!(:fake_time2) {
+    @fake_time2 = ::Time.stub(:now).and_return(::Time.mktime(1971,1,1))
+  }
 
   it { expect(subject).to have_key("en") }
   it { expect(subject.en).to eq "something" }
@@ -70,6 +82,35 @@ describe ::Trax::Core::Types::Struct do
       let(:definition) { "::MyFakeStructNamespace::Locale".constantize.new }
       it { expect(definition.locations.length).to eq 0 }
       it { expect(definition.locations).to_not eq nil }
+    end
+  end
+
+  context "with boolean property" do
+    let(:definition) { "::MyFakeStructNamespace::Locale".constantize }
+    subject { definition.new(:is_whatever => false) }
+
+    it { expect(subject.is_whatever).to eq false }
+    context "default" do
+      subject { definition.new }
+      it{ expect(subject.is_whatever).to eq true }
+    end
+
+    context "coercion" do
+      subject { definition.new(:is_whatever => '') }
+      it{ expect(subject.is_whatever).to eq false }
+      it{ expect(subject.is_whatever).to be_falsey }
+    end
+  end
+
+  context "with time property" do
+    let(:definition) { "::MyFakeStructNamespace::Location".constantize }
+    subject { definition.new(:created_at => fake_time1) }
+    it { expect(subject.created_at).to eq fake_time1 }
+
+    context do
+      let(:db_timestamp) { "2015-12-05 15:34:57.701289" }
+      let(:test_subject) { definition.new(:created_at => db_timestamp) }
+      it { test_subject.created_at.should be_a(::Time) }
     end
   end
 end

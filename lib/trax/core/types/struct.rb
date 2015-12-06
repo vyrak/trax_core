@@ -23,7 +23,8 @@ module Trax
           :integer  => nil,
           :json     => {},
           :string   => "",
-          :struct   => {}
+          :struct   => {},
+          :time     => nil
         }.with_indifferent_access.freeze
 
         def self.fields_module
@@ -48,7 +49,9 @@ module Trax
         end
 
         def self.boolean_property(name, *args, **options, &block)
-          define_attribute_class_for_type(:boolean, name, *args, :coerce => ->(value){!!value}, **options, &block)
+          define_attribute_class_for_type(:boolean, name, *args, :coerce => ->(value){
+            [true, false].include?(value) ? value : value.to_b
+          }, **options, &block)
         end
 
         def self.enum_property(name, *args, **options, &block)
@@ -73,6 +76,10 @@ module Trax
 
         def self.struct_property(name, *args, **options, &block)
           define_attribute_class_for_type(:struct, name, *args, :coerce => true, **options, &block)
+        end
+
+        def self.time_property(name, *args, **options, &block)
+          define_attribute_class_for_type(:time, name, *args, :coerce => ->(value){ ::Time.parse(value) if value }, **options, &block)
         end
 
         def self.to_schema
@@ -105,6 +112,7 @@ module Trax
           alias :json :json_property
           alias :string :string_property
           alias :struct :struct_property
+          alias :time :time_property
         end
 
         def value
@@ -131,7 +139,7 @@ module Trax
           property(property_name.to_sym, *args, **options)
 
           if coerce.is_a?(::Proc)
-            coerce_key(property_name.to_sym, &coerce)
+            coerce_key(property_name.to_sym, coerce)
           elsif coerce.is_a?(::Array)
             coerce_key(property_name.to_sym, coerce)
           elsif [ ::Integer, ::Float, ::String ].include?(coerce)
