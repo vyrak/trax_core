@@ -12,6 +12,7 @@ module Trax
       autoload :Float
       autoload :Integer
       autoload :Json
+      autoload :Set
       autoload :String
       autoload :Struct
       autoload :Time

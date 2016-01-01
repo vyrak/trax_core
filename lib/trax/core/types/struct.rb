@@ -22,6 +22,7 @@ module Trax
           :float    => 0.0,
           :integer  => nil,
           :json     => {},
+          :set      => [],
           :string   => "",
           :struct   => {},
           :time     => nil
@@ -68,6 +69,10 @@ module Trax
 
         def self.json_property(name, *args, **options, &block)
           define_attribute_class_for_type(:json, name, *args, **options, &block)
+        end
+
+        def self.set_property(name, *args, **options, &block)
+          define_attribute_class_for_type(:set, name, *args, :coerce => true, **options, &block)
         end
 
         def self.string_property(name, *args, **options, &block)
@@ -123,6 +128,7 @@ module Trax
           alias :float :float_property
           alias :integer :integer_property
           alias :json :json_property
+          alias :set :set_property
           alias :string :string_property
           alias :struct :struct_property
           alias :time :time_property
