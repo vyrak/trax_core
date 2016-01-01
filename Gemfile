@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 gemspec
 
 # gem 'hashie', :github => "intridea/hashie"
+#pointing at branch until default value procs for dash is merged
+gem 'hashie', :github => "jasonayre/hashie"
 
 group :development do
   gem 'guard-bundler'
