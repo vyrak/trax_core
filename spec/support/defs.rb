@@ -16,7 +16,7 @@ module Defs
     array :categories, :of => "Defs::Category", :default => []
   end
 
-  struct :ShoesAttributes, :extend => "Defs::ProductAttributes" do
+  struct :ShoesAttributes, :extends => "Defs::ProductAttributes" do
     enum :size do
       define :mens_8,  1
       define :mens_9,  2

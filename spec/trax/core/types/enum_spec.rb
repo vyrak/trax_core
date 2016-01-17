@@ -18,7 +18,7 @@ describe ::Trax::Core::Types::Enum do
         define :accessories, 4
       end
 
-      enum :ExtendedCategory, :extend => "MyFakeEnumNamespace::Category" do
+      enum :ExtendedCategory, :extends => "MyFakeEnumNamespace::Category" do
         define :watches,    5
         define :sunglasses, 6
       end
@@ -125,7 +125,7 @@ describe ::Trax::Core::Types::Enum do
       let(:described_object) do
         "::MyFakeEnumNamespace::Category".constantize
       end
-      
+
       it { expect(described_object.names).to_not include(:watches)}
     end
   end
