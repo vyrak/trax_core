@@ -146,8 +146,8 @@ module Trax
           name = name.is_a?(::Symbol) ? name.to_s : name
           klass_name = "#{fields_module.name.underscore}/#{property_name}".camelize
 
-          attribute_klass = if options.key?(:extend)
-            _klass_prototype = options[:extend].is_a?(::String) ? options[:extend].safe_constantize : options[:extend]
+          attribute_klass = if options.key?(:extends)
+            _klass_prototype = options[:extends].is_a?(::String) ? options[:extends].safe_constantize : options[:extends]
             _klass = ::Trax::Core::NamedClass.new(klass_name, _klass_prototype, :parent_definition => self, **options, &block)
             _klass
           else

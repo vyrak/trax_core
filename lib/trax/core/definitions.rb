@@ -6,8 +6,8 @@ module Trax
       end
 
       def enum(klass_name, **options, &block)
-        attribute_klass = if options.key?(:extend)
-          _klass_prototype = options[:extend].constantize.clone
+        attribute_klass = if options.key?(:extends)
+          _klass_prototype = options[:extends].constantize.clone
           ::Trax::Core::NamedClass.new("#{self.name}::#{klass_name}", _klass_prototype, :parent_definition => self, &block)
         else
           ::Trax::Core::NamedClass.new("#{self.name}::#{klass_name}", ::Trax::Core::Types::Enum, :parent_definition => self, &block)
@@ -17,8 +17,8 @@ module Trax
       end
 
       def struct(klass_name, **options, &block)
-        attribute_klass = if options.key?(:extend)
-          _klass_prototype = options[:extend].constantize.clone
+        attribute_klass = if options.key?(:extends)
+          _klass_prototype = options[:extends].constantize.clone
           ::Trax::Core::NamedClass.new("#{self.name}::#{klass_name}", _klass_prototype, :parent_definition => self, &block)
         else
           ::Trax::Core::NamedClass.new("#{self.name}::#{klass_name}", ::Trax::Core::Types::Struct, :parent_definition => self, &block)
