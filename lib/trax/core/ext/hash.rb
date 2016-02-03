@@ -1,4 +1,10 @@
-class Hash
+module HashExtensions
+  def assert_required_keys(*args)
+    missing_args = args.reject{|arg| self.key?(arg) }
+    raise ArgumentError.new("Missing keys: #{missing_args.join(', ')}") if missing_args.any?
+    self
+  end
+
   ## Returns selected keys, named or renamed as specified
   # myproduct = {:name => "something", :price => "20"}
   # liability = myproduct.tap(&{:cost => :price})
@@ -47,4 +53,8 @@ class Hash
       return new_hash
     }
   end
+end
+
+class Hash
+  include HashExtensions
 end
