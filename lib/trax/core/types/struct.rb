@@ -19,11 +19,11 @@ module Trax
           :array_of => [],
           :boolean  => nil,
           :enum     => nil,
-          :float    => 0.0,
+          :float    => nil,
           :integer  => nil,
           :json     => {},
           :set      => [],
-          :string   => "",
+          :string   => nil,
           :struct   => {},
           :time     => nil
         }.with_indifferent_access.freeze
