@@ -8,9 +8,9 @@ describe ::Hash do
     ]
   end
 
-  describe "#to_proc" do
-    it{
-      subject.map(&{:name => :name, :cost => :price }).map(&[:cost]).sum.should eq 90
+  describe "#to_transformer" do
+    it {
+      subject.map(&{:name => :name, :cost => :price }.to_transformer).map(&[:cost]).sum.should eq 90
     }
 
     context "single hash" do
@@ -19,7 +19,7 @@ describe ::Hash do
       end
 
       it do
-        result = subject.tap(&{:cost => :price})
+        result = subject.tap(&{:cost => :price}.to_transformer)
         result[:cost].should eq 40
       end
 
@@ -30,7 +30,7 @@ describe ::Hash do
           result = subject.tap(&{
             :name => :name,
             :sale_price => {:price => ->(val){ val / 2 } }
-          })
+          }.to_transformer)
 
           result[:sale_price].should eq 20
         end
@@ -41,14 +41,14 @@ describe ::Hash do
       subject { ::OpenStruct.new({:name => "something", :price => 40}) }
 
       it do
-        subject.as!(&{:cost => :price})[:cost].should eq 40
+        subject.as!({:cost => :price})[:cost].should eq 40
       end
 
       context "transforming of values" do
         let(:original_subject) { ::OpenStruct.new({:name => "something", :price => 40 }) }
 
         subject do
-          original_subject.as!(&{
+          original_subject.as!({
             :name => :name,
             :sale_price => { :price => ->(val){ val / 2 } }
           })
@@ -60,7 +60,7 @@ describe ::Hash do
 
         context "can transform into a new value while reusing value" do
           subject do
-            original_subject.as!(&{
+            original_subject.as!({
               :name => :name,
               :price => :price,
               :sale_price => { :price => ->(val){ val / 2 } }
@@ -71,7 +71,7 @@ describe ::Hash do
 
           context "order dependency" do
             subject do
-              original_subject.as!(&{
+              original_subject.as!({
                 :name => :name,
                 :sale_price => { :price => ->(val){ val / 2 } },
                 :price => :price
