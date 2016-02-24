@@ -1,7 +1,7 @@
 require "active_support/core_ext/object/try"
 class Object
-  def as!
-    yield self
+  def as!(h)
+    h.to_transformer.call(self)
   end
 
   # Defines a Configuration Class within a target module namespace, or nested class
