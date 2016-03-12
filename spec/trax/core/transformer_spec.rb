@@ -3,37 +3,20 @@ require 'spec_helper'
 describe ::Trax::Core::Transformer do
   let(:payload) do
     {
-      "name": "Uber",
-      "legalName": "Uber, Inc.",
-      "domain": "uber.com",
-      "domainAliases": ['uber.co'],
-      "url": "http://uber.com",
-      "site": {
-        "url": "http://uber.com",
-        "title": nil,
-        "h1": nil,
+      "name" => "Uber",
+      "legalName" => "Uber, Inc.",
+      "url" => "http =>//uber.com",
+      "metrics" => {
+        "raised" => 1502450000,
+        "annualRevenue" => 20000
       },
-      "description": "Uber is a mobile app connecting passengers with drivers for hire.",
-      "foundedDate": "2009-03-01",
-      "location": "1455 Market Street, San Francisco, CA 94103, USA",
-      "timeZone": "America/Los_Angeles",
-      "utcOffset": -8,
-      "metrics": {
-        "raised": 1502450000,
-        "employees": 1000,
-        "googleRank": 7,
-        "alexaUsRank": 2467,
-        "alexaGlobalRank": 2319,
-        "marketCap": nil,
-        "annualRevenue": 20000
-      },
-      "somethingElse": "somethingElseValue",
-      "some_value_transform": 10,
-      "some_value_to_times_by": 2,
-      "some_value": 30,
-      "stats": {
-        "number_of_widgets": 20,
-        "number_of_employees": 40
+      "somethingElse" => "somethingElseValue",
+      "some_value_transform" => 10,
+      "some_value_to_times_by" => 2,
+      "some_value" => 30,
+      "stats" => {
+        "number_of_widgets" => 20,
+        "number_of_employees" => 40
       }
     }.with_indifferent_access
   end
