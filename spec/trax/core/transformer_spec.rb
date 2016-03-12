@@ -136,6 +136,10 @@ describe ::Trax::Core::Transformer do
         it "runs after transform callbacks which can mutate return result" do
           expect(subject["some_object"].thing).to eq 1
         end
+
+        it "unwraps nested transformers with after transform callbacks" do
+          expect(subject["some_object"].is_a?(::OpenStruct)).to eq true
+        end
       end
     end
 

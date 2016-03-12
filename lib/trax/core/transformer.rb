@@ -28,6 +28,14 @@ module Trax
         @nested_properties ||= properties.values.select{|prop| prop.is_nested? }
       end
 
+      def self.transformer_properties
+        @transformer_properties ||= properties.values.select{|prop| prop.ancestors.include?(::Trax::Core::Transformer) }
+      end
+
+      def self.transformer_properties_with_after_transform_callbacks
+        @transformer_properties_with_after_transform_callbacks ||= transformer_properties.select{|prop| prop.after_transform_callbacks.any? }
+      end
+
       def self.is_nested?
         !!self.try(:parent_definition)
       end
@@ -77,6 +85,7 @@ module Trax
         initialize_default_values
         run_after_initialize_callbacks if run_after_initialize_callbacks?
         run_after_transform_callbacks if run_after_transform_callbacks?
+        unwrap_nested_transformers if unwrap_nested_transformers?
       end
 
       def [](_property)
@@ -168,6 +177,19 @@ module Trax
 
       def run_after_transform_callbacks?
         self.class.after_transform_callbacks.any?
+      end
+
+      #go through nested transformers with after transform callbacks and get the actual object being delegated to
+      def unwrap_nested_transformers
+        self.class.transformer_properties_with_after_transform_callbacks.each do |property_klass|
+          if self[property_klass.property_name]
+            self[property_klass.property_name] = self[property_klass.property_name].__getobj__
+          end
+        end
+      end
+
+      def unwrap_nested_transformers?
+        self.class.transformer_properties_with_after_transform_callbacks.any?
       end
     end
 
