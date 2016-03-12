@@ -6,6 +6,18 @@ module Trax
       def self.inherited(subklass)
         subklass.class_attribute :properties
         subklass.properties = {}.with_indifferent_access
+        subklass.class_attribute :after_initialize_callbacks
+        subklass.after_initialize_callbacks = ::Set.new
+        subklass.class_attribute :after_transform_callbacks
+        subklass.after_transform_callbacks = ::Set.new
+      end
+
+      def self.after_initialize(&block)
+        after_initialize_callbacks << block
+      end
+
+      def self.after_transform(&block)
+        after_transform_callbacks << block
       end
 
       def self.properties_with_default_values
@@ -63,6 +75,8 @@ module Trax
 
         initialize_output_properties
         initialize_default_values
+        run_after_initialize_callbacks if run_after_initialize_callbacks?
+        run_after_transform_callbacks if run_after_transform_callbacks?
       end
 
       def [](_property)
@@ -132,6 +146,28 @@ module Trax
             @output[property_klass.property_name] = property_klass.new(value, self)
           end
         end
+      end
+
+      #will not transform output based on callback result
+      def run_after_initialize_callbacks
+        self.class.after_initialize_callbacks.each do |callback|
+          @output.instance_eval(&callback)
+        end
+      end
+
+      def run_after_initialize_callbacks?
+        self.class.after_initialize_callbacks.any?
+      end
+
+      #will transform output with return of each callback
+      def run_after_transform_callbacks
+        self.class.after_transform_callbacks.each do |callback|
+          @output = @output.instance_exec(self, &callback)
+        end
+      end
+
+      def run_after_transform_callbacks?
+        self.class.after_transform_callbacks.any?
       end
     end
 

@@ -17,7 +17,14 @@ describe ::Trax::Core::Transformer do
       "stats" => {
         "number_of_widgets" => 20,
         "number_of_employees" => 40
-      }
+      },
+      "some_object" => {
+        "thing" => 1
+      },
+      "some_other_object" => {
+        "some_value" => 2
+      },
+      "some_unmapped_var" => 2
     }.with_indifferent_access
   end
 
@@ -42,6 +49,23 @@ describe ::Trax::Core::Transformer do
 
       transformer "website" do
         property "url", :from_parent => "url"
+      end
+
+      transformer "some_object" do
+        property "thing"
+
+        after_transform do
+          OpenStruct.new(self)
+        end
+      end
+
+      transformer "some_other_object" do
+        property "some_value"
+
+        after_transform do |instance|
+          self['result'] = self['some_value'] * instance.parent.input["some_unmapped_var"]
+          OpenStruct.new(self)
+        end
       end
     end
   end
@@ -94,6 +118,24 @@ describe ::Trax::Core::Transformer do
 
       it "brand new nested property" do
         expect(subject["website"]["url"]).to eq payload["url"]
+      end
+    end
+
+    context "callbacks" do
+      context "after transform" do
+        it "runs after transform callbacks which can mutate return result" do
+          expect(subject["some_object"].thing).to eq 1
+        end
+
+        it "passes instance" do
+          expect(subject["some_other_object"].result).to eq 4
+        end
+      end
+
+      context "after transform" do
+        it "runs after transform callbacks which can mutate return result" do
+          expect(subject["some_object"].thing).to eq 1
+        end
       end
     end
 
