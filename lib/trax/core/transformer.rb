@@ -67,7 +67,7 @@ module Trax
 
       def [](_property)
         if _property.include?('/')
-          property_chain = k.split('/')
+          property_chain = _property.split('/')
           self.dig(*property_chain)
         else
           super(_property)
