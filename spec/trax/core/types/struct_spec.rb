@@ -29,6 +29,7 @@ describe ::Trax::Core::Types::Struct do
         string :en, :default => ""
         string :da, :default => ""
         string :ca, :default => "eh"
+        string :fr
 
         struct :territories do
           string :en, :default => "US"
@@ -40,6 +41,8 @@ describe ::Trax::Core::Types::Struct do
 
         json :phone_formats
         json :date_formats, :default => {:en_US => "%m-%d-%y"}
+
+        set :widgets
       end
     end
   end
@@ -144,6 +147,51 @@ describe ::Trax::Core::Types::Struct do
     context "default value" do
       subject{ definition.new }
       it { expect(subject.last_updated_at).to eq ::Time.mktime(1980,1,1) }
+    end
+  end
+
+  context "#reverse_merge" do
+    subject { "::MyFakeStructNamespace::Locale".constantize.new(:en => "something") }
+    let(:other_struct) { "::MyFakeStructNamespace::Locale".constantize.new(:en => "changedvalue", :fr => "somefrench") }
+    it {
+      expect(subject.fr).to eq nil
+    }
+
+    it {
+      expect(subject.fr).to eq nil
+      result = subject.reverse_merge(other_struct)
+      expect(result.en).to eq "something"
+    }
+  end
+
+  context "#reverse_merge_present_values_only!" do
+    context "values that do not get overwritten" do
+      subject { "::MyFakeStructNamespace::Locale".constantize.new(:en => "something", :is_whatever => false, :widgets => ['one']) }
+      let(:other_struct) { "::MyFakeStructNamespace::Locale".constantize.new(:en => "changedvalue", :fr => "somefrench", :is_whatever => true, :widgets => ['two']) }
+      it {
+        expect(subject.fr).to eq nil
+      }
+
+      it {
+        expect(subject.fr).to eq nil
+        subject.reverse_merge_present_values_only!(other_struct)
+        expect(subject.en).to eq "something"
+        expect(subject.fr).to eq "somefrench"
+        expect(subject.is_whatever).to eq false
+        expect(subject.widgets.first).to eq 'one'
+      }
+    end
+
+    context "values which should be overwritten" do
+      subject { "::MyFakeStructNamespace::Locale".constantize.new(:en => "", :is_whatever => nil, :widgets => []) }
+      let(:other_struct) { "::MyFakeStructNamespace::Locale".constantize.new(:en => "changedvalue", :fr => "somefrench", :is_whatever => true, :widgets => ['two']) }
+      it {
+        subject.reverse_merge_present_values_only!(other_struct)
+        expect(subject.en).to eq "changedvalue"
+        expect(subject.fr).to eq "somefrench"
+        expect(subject.is_whatever).to eq true
+        expect(subject.widgets.first).to eq 'two'
+      }
     end
   end
 end

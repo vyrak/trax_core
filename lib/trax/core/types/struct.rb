@@ -134,8 +134,49 @@ module Trax
           alias :time :time_property
         end
 
+        def reverse_merge(other_hash)
+          self.class.new(other_hash).merge(self)
+        end
+
+        def reverse_merge!(other_hash)
+          self.class.new(other_hash).merge!(self)
+        end
+
+        def reverse_merge_present_values_only
+          other = other_hash.delete_if{|k,v| v.nil? || self.value_present_for_key?(k) }
+          other.keys.each_with_object(self) do |k, result|
+            self.delete(k) if !self.value_present_for_key?(k)
+          end
+
+          self.merge(other)
+        end
+
+        def reverse_merge_present_values_only!(other_hash)
+           other = other_hash.delete_if{|k,v| v.nil? || self.value_present_for_key?(k) }
+           other.keys.each_with_object(self) do |k, result|
+             self.delete(k) if !self.value_present_for_key?(k)
+           end
+
+           self.merge!(other)
+        end
+
         def value
           self
+        end
+
+        def value_present_for_key?(k)
+          case self.class.fields_module.all[k].type
+          when :struct
+            !self.__send__(k).empty?
+          when :boolean
+            !self.__send__(k).nil?
+          when :array, :set
+            self.__send__(k) && self.__send__(k).length > 0
+          when :string
+            self.__send__(k).present?
+          else
+            !self.__send__(k).nil?
+          end
         end
 
         private
