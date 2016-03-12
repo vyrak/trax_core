@@ -14,6 +14,17 @@ require_relative './core/ext/uri'
 require_relative './core/primitives/enum_value'
 require_relative './core/primitives/enum'
 
+if(::RUBY_VERSION < '2.3')
+  begin
+    require 'ruby_dig'
+  rescue LoadError => e
+    raise unless e.message =~ /ruby_dig/
+    error = e.exception("Trax::Core::Transformer relies on ruby_dig shim, add gem 'ruby_dig' to gemfile")
+    error.set_backtrace(e.backtrace)
+    raise error
+  end
+end
+
 module Trax
   module Core
     extend ::ActiveSupport::Autoload
