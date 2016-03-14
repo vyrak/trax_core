@@ -141,8 +141,6 @@ describe ::Trax::Core::Transformer do
           expect(subject["some_object"].__getobj__.is_a?(::OpenStruct)).to eq true
         end
       end
-
-
     end
 
     context "to_hash" do
