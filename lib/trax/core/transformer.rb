@@ -214,6 +214,10 @@ module Trax
         end
       end
 
+      def nil?
+        __getobj__.nil?
+      end
+
       def __getobj__
         @value
       end
