@@ -62,8 +62,8 @@ describe ::Trax::Core::Transformer do
       transformer "some_other_object" do
         property "some_value"
 
-        after_transform do |instance|
-          self['result'] = self['some_value'] * instance.parent.input["some_unmapped_var"]
+        after_transform do |result|
+          self['result'] = result['some_value'] * self.parent.input["some_unmapped_var"]
           OpenStruct.new(self)
         end
       end
@@ -137,9 +137,17 @@ describe ::Trax::Core::Transformer do
           expect(subject["some_object"].thing).to eq 1
         end
 
-        it "unwraps nested transformers with after transform callbacks" do
-          expect(subject["some_object"].is_a?(::OpenStruct)).to eq true
+        it "wraps return value in class" do
+          expect(subject["some_object"].__getobj__.is_a?(::OpenStruct)).to eq true
         end
+      end
+
+
+    end
+
+    context "to_hash" do
+      it "unwraps nested transformers" do
+        expect(subject.to_hash["some_object"].is_a?(::OpenStruct)).to eq true
       end
     end
 

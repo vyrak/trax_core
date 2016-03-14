@@ -1,7 +1,7 @@
 module Trax
   module Core
     class Transformer < SimpleDelegator
-      attr_reader :input, :parent
+      attr_reader :input, :parent, :output
 
       def self.inherited(subklass)
         subklass.class_attribute :properties
@@ -85,7 +85,6 @@ module Trax
         initialize_default_values
         run_after_initialize_callbacks if run_after_initialize_callbacks?
         run_after_transform_callbacks if run_after_transform_callbacks?
-        unwrap_nested_transformers if unwrap_nested_transformers?
       end
 
       def [](_property)
@@ -118,6 +117,22 @@ module Trax
 
       def __getobj__
         @output
+      end
+
+      def to_hash
+        @to_hash ||= begin
+          duplicate_hash = self.__getobj__.dup
+
+          self.each_pair do |k, v|
+            if v.is_a?(::Trax::Core::Transformer)
+              duplicate_hash[k] = v.to_hash
+            elsif v.is_a?(Property)
+              duplicate_hash[k] = v.__getobj__
+            end
+          end
+
+          duplicate_hash
+        end
       end
 
       private
@@ -171,25 +186,12 @@ module Trax
       #will transform output with return of each callback
       def run_after_transform_callbacks
         self.class.after_transform_callbacks.each do |callback|
-          @output = @output.instance_exec(self, &callback)
+          @output = self.instance_exec(@output, &callback)
         end
       end
 
       def run_after_transform_callbacks?
         self.class.after_transform_callbacks.any?
-      end
-
-      #go through nested transformers with after transform callbacks and get the actual object being delegated to
-      def unwrap_nested_transformers
-        self.class.transformer_properties_with_after_transform_callbacks.each do |property_klass|
-          if self[property_klass.property_name]
-            self[property_klass.property_name] = self[property_klass.property_name].__getobj__
-          end
-        end
-      end
-
-      def unwrap_nested_transformers?
-        self.class.transformer_properties_with_after_transform_callbacks.any?
       end
     end
 
