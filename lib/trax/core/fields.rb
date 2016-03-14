@@ -38,6 +38,10 @@ module Trax
         @enums ||= by_type(:enum)
       end
 
+      def key?(k)
+        all.key?(k)
+      end
+
       def structs
         @structs ||= by_type(:struct)
       end
