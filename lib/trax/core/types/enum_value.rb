@@ -47,7 +47,7 @@ module Trax
         end
 
         def self.inspect
-          ":#{tag}"
+          tag ? ":#{tag}" : super
         end
 
         def self.include?(val)
