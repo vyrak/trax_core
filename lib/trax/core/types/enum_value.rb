@@ -2,13 +2,6 @@ module Trax
   module Core
     module Types
       class EnumValue
-        def self.inherited(subclass)
-          super(subclass)
-          self.class_attribute(:tag)
-          self.class_attribute(:value)
-          self.class_attribute(:attributes)
-        end
-
         def self.as_json(options={})
           tag.to_s
         end
@@ -60,7 +53,7 @@ module Trax
         end
 
         def self.===(val)
-          [tag, to_s, to_i].include?(val)
+          [::Trax::Core::Types::Enum, tag, to_s, to_i].include?(val)
         end
       end
     end

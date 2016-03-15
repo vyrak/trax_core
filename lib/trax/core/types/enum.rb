@@ -15,7 +15,7 @@ module Trax
         class_attribute :allow_nil, :raise_on_invalid
 
         ### Class Methods ###
-        def self.define_enum_value(const_name, val=nil, **attributes)
+        def self.define_enum_value(const_name, val=nil, **attributes, &block)
           name = "#{const_name}".underscore.to_sym
           const_name = name.to_s.camelize
           val = (self._values_hash.length + 1) if val.nil?
@@ -23,11 +23,8 @@ module Trax
           raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => const_name) if self === name
           raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => val) if self === val
 
-          value_klass = ::Trax::Core::NamedClass.new("#{self.name}::#{const_name}", ::Trax::Core::Types::EnumValue){
-            self.tag = name
-            self.value = val
-            self.attributes = attributes
-          }
+          value_klass_class_attributes = {:tag => name, :value => val, :attributes => attributes}
+          value_klass = ::Trax::Core::NamedClass.new("#{self.name}::#{const_name}", ::Trax::Core::Types::EnumValue, **value_klass_class_attributes, &block)
 
           self._values_hash[val] = value_klass
           self._names_hash[name] = value_klass
