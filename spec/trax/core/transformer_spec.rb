@@ -149,6 +149,12 @@ describe ::Trax::Core::Transformer do
       end
     end
 
+    context "to_recursive_hash" do
+      it "unwraps nested transformers" do
+        expect(subject.to_recursive_hash["some_object"].is_a?(::OpenStruct)).to eq true
+      end
+    end
+
     it {
       expect(subject["some_value"]).to eq 30
     }

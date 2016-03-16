@@ -123,6 +123,22 @@ module Trax
         @to_hash ||= begin
           duplicate_hash = self.__getobj__.dup
 
+          duplicate_hash.each_pair do |k, v|
+            if v.is_a?(::Trax::Core::Transformer)
+              duplicate_hash[k] = v.__getobj__
+            elsif v.is_a?(Property)
+              duplicate_hash[k] = v.__getobj__
+            end
+          end
+
+          duplicate_hash
+        end
+      end
+
+      def to_recursive_hash
+        @to_recursive_hash ||= begin
+          duplicate_hash = self.__getobj__.dup
+
           self.each_pair do |k, v|
             if v.is_a?(::Trax::Core::Transformer)
               duplicate_hash[k] = v.to_hash
