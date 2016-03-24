@@ -12,10 +12,10 @@ describe ::Trax::Core::Types::Enum do
       end
 
       enum :Category do
-        define :default, 1
-        define :clothing, 2
-        define :shoes, 3
-        define :accessories, 4
+        define :default, 1, :display_name => "Default"
+        define :clothing, 2, :display_name => "Clothing"
+        define :shoes, 3, :display_name => "Shoes"
+        define :accessories, 4, :display_name => "Accessories"
       end
 
       enum :ExtendedCategory, :extends => "MyFakeEnumNamespace::Category" do
@@ -128,5 +128,10 @@ describe ::Trax::Core::Types::Enum do
 
       it { expect(described_object.names).to_not include(:watches)}
     end
+  end
+
+  context ".to_schema" do
+    subject { "::MyFakeEnumNamespace::Category".constantize.new(2).to_schema }
+    it { expect(subject[:attributes][:display_name]).to eq "Clothing" }
   end
 end

@@ -35,7 +35,8 @@ module Trax
             :source => self.name,
             :name => to_s,
             :type => :enum_value,
-            :integer_value => to_i
+            :integer_value => to_i,
+            :attributes => attributes
           )
         end
 
