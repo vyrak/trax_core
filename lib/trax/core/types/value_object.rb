@@ -10,6 +10,10 @@ module Trax
           @value
         end
 
+        def nil?
+          @value.nil?
+        end
+
         def self.symbolic_name
           name.demodulize.underscore.to_sym
         end
