@@ -10,7 +10,7 @@ describe ::Module do
       end
     end
 
-    it { Trax.some_fake_hash.should be_a(Hash) }
+    it { expect(Trax.some_fake_hash).to be_a(Hash) }
   end
 
   describe ".recursively_define_namespaced_class" do
@@ -27,7 +27,7 @@ describe ::Module do
         Trax.recursively_define_namespaced_class("Core::FakeKlass", Hash)
       end
 
-      it { Trax::Core::FakeKlass.superclass.should == Hash }
+      it { expect(Trax::Core::FakeKlass.superclass).to eq Hash }
     end
   end
 
@@ -42,14 +42,14 @@ describe ::Module do
 
     subject{ ::Trax::Core::FakeNamespace::Configuration }
 
-    its(:superclass) { should eq ::Trax::Core::Configuration }
+    its(:superclass) { is_expected.to eq ::Trax::Core::Configuration }
 
     it "sets up configuration options" do
       ::Trax::Core::FakeNamespace.configure do |config|
         config.something = 'anything'
       end
 
-      ::Trax::Core::FakeNamespace.config.something.should eq 'anything'
+      expect(::Trax::Core::FakeNamespace.config.something).to eq 'anything'
     end
   end
 
@@ -84,7 +84,7 @@ describe ::Module do
         config.base_url = 'somewhere'
       end
 
-      ::Trax::Core::YetAnotherFakeClass.config.allowed_ips[0].should eq '192.231.1234'
+      expect(::Trax::Core::YetAnotherFakeClass.config.allowed_ips[0]).to eq '192.231.1234'
     end
   end
 end

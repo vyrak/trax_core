@@ -4,7 +4,7 @@ describe ::Trax::Core::Definitions do
   subject(:definitions) { ::Defs }
 
   context "fields" do
-    it { subject[:category].should eq subject::Category }
+    it { expect(subject[:category]).to eq subject::Category }
   end
 
   context "enum" do

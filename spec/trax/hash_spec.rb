@@ -9,9 +9,7 @@ describe ::Hash do
   end
 
   describe "#to_transformer" do
-    it {
-      subject.map(&{:name => :name, :cost => :price }.to_transformer).map(&[:cost]).sum.should eq 90
-    }
+    it { expect(subject.map(&{:name => :name, :cost => :price }.to_transformer).map(&[:cost]).sum).to eq 90 }
 
     context "single hash" do
       subject do
@@ -20,7 +18,7 @@ describe ::Hash do
 
       it do
         result = subject.tap(&{:cost => :price}.to_transformer)
-        result[:cost].should eq 40
+        expect(result[:cost]).to eq 40
       end
 
       context "transforming of values" do
@@ -32,7 +30,7 @@ describe ::Hash do
             :sale_price => {:price => ->(val){ val / 2 } }
           }.to_transformer)
 
-          result[:sale_price].should eq 20
+          expect(result[:sale_price]).to eq 20
         end
       end
     end
@@ -41,7 +39,7 @@ describe ::Hash do
       subject { ::OpenStruct.new({:name => "something", :price => 40}) }
 
       it do
-        subject.as!({:cost => :price})[:cost].should eq 40
+        expect(subject.as!({:cost => :price})[:cost]).to eq 40
       end
 
       context "transforming of values" do
@@ -55,7 +53,7 @@ describe ::Hash do
         end
 
         it do
-          subject[:sale_price].should eq 20
+          expect(subject[:sale_price]).to eq 20
         end
 
         context "can transform into a new value while reusing value" do
@@ -67,7 +65,7 @@ describe ::Hash do
             })
           end
 
-          it { [subject[:sale_price], subject[:price]].should eq [20, 40] }
+          it { expect([subject[:sale_price], subject[:price]]).to eq [20, 40] }
 
           context "order dependency" do
             subject do
@@ -79,7 +77,7 @@ describe ::Hash do
             end
 
             it "should not matter" do
-              [subject[:sale_price], subject[:price]].should eq [20, 40]
+              expect([subject[:sale_price], subject[:price]]).to eq [20, 40]
             end
           end
         end
