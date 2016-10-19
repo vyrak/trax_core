@@ -21,7 +21,11 @@ module Trax
 
         mixin_module = base.const_set("Mixin", ::Module.new)
         mixin_module.module_attribute(:mixin_namespace) { base }
-        mixin_module.extend(::Trax::Core::Mixin)
+
+        # NOTE: This line causes specs to fail, because it loads before
+        # ::Trax::Core::Definitions. It's currently not being used by any other
+        # Trax gems, so we'll have to revisit this whenever they start using it
+        #mixin_module.extend(::Trax::Core::Mixin)
 
         mixin_module.module_eval do
           def self.extended(base)
