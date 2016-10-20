@@ -9,9 +9,7 @@ describe ::Array do
   end
 
   describe "#to_proc" do
-    it{
-      subject.map(&[:name, :price]).map(&:last).sum.should eq 90
-    }
+    it { expect(subject.map(&[:name, :price]).map(&:last).sum).to eq 90 }
 
     context "array of non hash objects" do
       subject {
@@ -21,9 +19,7 @@ describe ::Array do
         ]
       }
 
-      it {
-        subject.map(&[:name, :price]).map(&[:price]).sum.should eq 90
-      }
+      it { expect(subject.map(&[:name, :price]).map(&[:price]).sum).to eq 90 }
     end
   end
 end

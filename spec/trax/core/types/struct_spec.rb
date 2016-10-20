@@ -49,12 +49,7 @@ describe ::Trax::Core::Types::Struct do
 
   subject { "::MyFakeStructNamespace::Locale".constantize.new(:en => "something") }
 
-  let!(:fake_time1) {
-    @fake_time1 = ::Time.stub(:now).and_return(::Time.mktime(1970,1,1))
-  }
-  let!(:fake_time2) {
-    @fake_time2 = ::Time.stub(:now).and_return(::Time.mktime(1971,1,1))
-  }
+  let!(:fake_time1) { ::Time.mktime(1970,1,1) }
 
   it { expect(subject).to have_key("en") }
   it { expect(subject.en).to eq "something" }
@@ -141,7 +136,7 @@ describe ::Trax::Core::Types::Struct do
     context "parsing timestamps" do
       let(:db_timestamp) { "2015-12-05 15:34:57.701289" }
       let(:test_subject) { definition.new(:created_at => db_timestamp) }
-      it { test_subject.created_at.should be_a(::Time) }
+      it { expect(test_subject.created_at).to be_a(::Time) }
     end
 
     context "default value" do

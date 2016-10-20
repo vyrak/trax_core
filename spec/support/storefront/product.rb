@@ -1,3 +1,5 @@
+require_relative "../fake_namespace"
+
 module Storefront
   class Product
     include ::FakeNamespace::Mixable

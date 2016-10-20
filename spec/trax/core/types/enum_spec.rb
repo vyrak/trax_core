@@ -50,31 +50,31 @@ describe ::Trax::Core::Types::Enum do
     let(:expected_values) { [1,2,3,4] }
 
     describe ".key?" do
-      it { subject.key?(:default).should eq true }
+      it { expect(subject.key?(:default)).to eq true }
     end
 
     describe "[](val)" do
-      it { subject[:default].to_i.should eq 1 }
+      it { expect(subject[:default].to_i).to eq 1 }
     end
 
     describe "[](val)" do
-      it { subject["default"].to_i.should eq 1 }
+      it { expect(subject["default"].to_i).to eq 1 }
     end
 
     describe ".value?" do
-      it { subject.value?(1).should eq true }
+      it { expect(subject.value?(1)).to eq true }
     end
 
     describe ".keys" do
-      it { subject.keys.should eq [:default, :clothing, :shoes, :accessories] }
+      it { expect(subject.keys).to eq [:default, :clothing, :shoes, :accessories] }
     end
 
     describe ".names" do
-      it { subject.keys.should eq expected_names }
+      it { expect(subject.keys).to eq expected_names }
     end
 
     describe ".values" do
-      it { subject.values.should eq expected_values }
+      it { expect(subject.values).to eq expected_values }
     end
 
     context "duplicate enum name" do
@@ -91,18 +91,18 @@ describe ::Trax::Core::Types::Enum do
       end
       subject { described_object.new(:clothing) }
 
-      it { subject.choice.should eq :clothing }
-      it { subject.choice.should eq 2 }
+      it { expect(subject.choice).to eq :clothing }
+      it { expect(subject.choice).to eq 2 }
       it { expect(subject.next_value.to_sym).to eq :shoes }
       it { expect(subject.previous_value.to_sym).to eq :default }
 
       context "selection of values" do
-        it { subject.select_next_value.should eq described_object.new(:shoes).choice }
+        it { expect(subject.select_next_value).to eq described_object.new(:shoes).choice }
       end
       context "value is last" do
         subject { described_object.new(:accessories) }
-        it { subject.next_value?.should eq false }
-        it { subject.previous_value?.should eq true }
+        it { expect(subject.next_value?).to eq false }
+        it { expect(subject.previous_value?).to eq true }
 
         context "selection of value" do
           it { expect(subject.select_next_value).to eq described_object.new(:accessories) }

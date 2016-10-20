@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe ::Trax::Core::Definitions do
-  subject { ::Defs }
+  subject(:definitions) { ::Defs }
 
   context "fields" do
-    it { subject[:category].should eq subject::Category }
+    it { expect(subject[:category]).to eq subject::Category }
   end
 
   context "enum" do
@@ -41,5 +41,79 @@ describe ::Trax::Core::Definitions do
     it { expect(subject::ShoesAttributes.new).to have_key(:size) }
     it { expect(subject::ShoesAttributes.new).to have_key(:price) }
     it { expect(subject::ShoesAttributes.new(:size => :mens_8).size.to_i).to eq 1 }
+  end
+
+  context "schema" do
+    let(:schema) { definitions.to_schema }
+
+    context "field defaults" do
+      context "with defaults" do
+        subject { schema[:shirt_attributes][:fields][field_name][:default] }
+
+        context "string" do
+          let(:field_name) { :name }
+          it { is_expected.to eq("Three-Fifty") }
+        end
+
+        context "float" do
+          let(:field_name) { :price }
+          it { is_expected.to eq(3.50) }
+        end
+
+        context "integer" do
+          let(:field_name) { :quantity_in_stock }
+          it { is_expected.to eq(5) }
+        end
+
+        context "boolean" do
+          let(:field_name) { :is_active }
+          it { is_expected.to eq(true) }
+        end
+
+        context "array" do
+          let(:field_name) { :categories }
+          it { is_expected.to eq([:default, :clothing]) }
+        end
+
+        context "enum" do
+          let(:field_name) { :size }
+          it { is_expected.to eq(:womens_m) }
+        end
+      end
+
+      context "without defaults" do
+        subject { schema[:shipment_attributes][:fields][field_name] }
+
+        context "string" do
+          let(:field_name) { :tracking_number }
+          it { is_expected.to_not have_key(:default) }
+        end
+
+        context "float" do
+          let(:field_name) { :weight }
+          it { is_expected.to_not have_key(:default) }
+        end
+
+        context "integer" do
+          let(:field_name) { :insurance_amount }
+          it { is_expected.to_not have_key(:default) }
+        end
+
+        context "boolean" do
+          let(:field_name) { :is_insured }
+          it { is_expected.to_not have_key(:default) }
+        end
+
+        context "array" do
+          let(:field_name) { :notes }
+          it { is_expected.to_not have_key(:default) }
+        end
+
+        context "enum" do
+          let(:field_name) { :shipping_type }
+          it { is_expected.to_not have_key(:default) }
+        end
+      end
+    end
   end
 end

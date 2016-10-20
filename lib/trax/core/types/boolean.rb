@@ -9,6 +9,7 @@ module Trax
         def self.to_schema
           result = super
           result[:values] = [true, false]
+          result
         end
       end
     end

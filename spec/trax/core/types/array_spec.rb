@@ -15,8 +15,8 @@ describe ::Trax::Core::Types::Array do
 
   context ".of" do
     let(:test_subject) { subject.new({:width => 1}) }
-    it { test_subject[0].width.should eq 1 }
-    it { test_subject[0].height.should eq 0 }
+    it { expect(test_subject[0].width).to eq 1 }
+    it { expect(test_subject[0].height).to eq 0 }
 
     context "does not duplicate values" do
       it {
@@ -35,7 +35,7 @@ describe ::Trax::Core::Types::Array do
   context "ArrayOf" do
     subject { ::Trax::Core::Types::ArrayOf[::AnotherFakeStructNamespace::Widget] }
     let(:test_subject) { subject.new({:width => 1}) }
-    it { test_subject[0].width.should eq 1 }
-    it { test_subject[0].height.should eq 0 }
+    it { expect(test_subject[0].width).to eq 1 }
+    it { expect(test_subject[0].height).to eq 0 }
   end
 end

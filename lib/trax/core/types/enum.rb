@@ -131,13 +131,15 @@ module Trax
         end
 
         def self.to_schema
-          ::Trax::Core::Definition.new(
+          result = ::Trax::Core::Definition.new(
             :name => self.name.demodulize.underscore,
             :source => self.name,
-            :type => :enum,
+            :type => self.type,
             :choices => choices.map(&:to_schema),
             :values => keys
           )
+          result[:default] = self.default if self.respond_to?(:default)
+          result
         end
 
         class << self
