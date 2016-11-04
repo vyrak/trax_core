@@ -55,7 +55,7 @@ module MethodExtensions
   end
 
   def execute_call_strategy(*args, **options)
-    __send__(strategy_for_call)
+    __send__(strategy_for_call, *args, **options)
   end
 
   def requires_arguments?
