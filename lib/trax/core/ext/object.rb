@@ -1,5 +1,19 @@
 require "active_support/core_ext/object/try"
 class Object
+  def __smart_send__(method_name, *args, **options)
+    target = method(method_name)
+
+    if target.accepts_nothing?
+      __send__(method_name)
+    elsif target.accepts_arguments_and_keywords?
+      __send__(method_name, *args, **options)
+    elsif target.accepts_arguments?
+      __send__(method_name, *args)
+    elsif target.accepts_keywords?
+      __send__(method_name, **options)
+    end
+  end
+
   def as!(h)
     h.to_transformer.call(self)
   end
