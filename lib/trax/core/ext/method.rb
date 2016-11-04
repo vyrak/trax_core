@@ -15,12 +15,20 @@ module MethodExtensions
     @accepts_something ||= arity != 0
   end
 
+  def accepts_nothing?
+    !accepts_something?
+  end
+
   def accepts_arguments?
     @accepts_arguments ||= requires_arguments? || accepts_optional_arguments? || accepts_arguments_splat?
   end
 
   def accepts_keywords?
     @accepts_keywords ||= requires_keywords? || accepts_optional_keywords? || accepts_keywords_splat?
+  end
+
+  def accepts_arguments_and_keywords?
+    @accepts_arguments_and_keywords ||= accepts_arguments? && accepts_keywords?
   end
 
   def accepts_arguments_splat?
