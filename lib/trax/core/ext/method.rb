@@ -7,6 +7,13 @@ module MethodExtensions
   # :rest = optional arguments splat, i.e. def foo(*args)
   # :keyrest = optional keyword arguments splat, i.e. def foo(**args)
 
+  STRATEGIES_FOR_SEND_WHEN_METHOD = {
+    :accepts_nothing? => :strategy_for_method_without_arguments,
+    :accepts_arguments_and_keywords? => :strategy_for_method_with_arguments_and_keywords,
+    :accepts_arguments? => :strategy_for_method_with_arguments,
+    :accepts_keywords? => :strategy_for_method_with_keywords
+  }.freeze
+
   def accepted_argument_signatures
     @accepted_argument_signatures ||= self.parameters.any? ? self.parameters.map(&:first).uniq : []
   end
@@ -47,12 +54,39 @@ module MethodExtensions
     @accepts_optional_keywords ||= accepted_argument_signatures.include?(:key)
   end
 
+  def execute_call_strategy(*args, **options)
+    __send__(strategy_for_call)
+  end
+
   def requires_arguments?
     @requires_arguments ||= accepted_argument_signatures.include?(:req)
   end
 
   def requires_keywords?
     @requires_keywords ||= accepted_argument_signatures.include?(:keyreq)
+  end
+
+  def strategy_for_method_without_arguments(*args, **options)
+    call()
+  end
+
+  def strategy_for_method_with_keywords(*args, **options)
+    call(**options)
+  end
+
+  def strategy_for_method_with_arguments(*args, **options)
+    call(*args)
+  end
+
+  def strategy_for_method_with_arguments_and_keywords(*args, **options)
+    call(*args, **options)
+  end
+
+  def strategy_for_call
+    @strategy_for_call ||= begin
+      first_matching_question = STRATEGIES_FOR_SEND_WHEN_METHOD.keys.detect{ |k| send(k) }
+      STRATEGIES_FOR_SEND_WHEN_METHOD[first_matching_question]
+    end
   end
 end
 
