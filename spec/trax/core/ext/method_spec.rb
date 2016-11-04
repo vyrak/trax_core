@@ -31,6 +31,9 @@ describe Method do
 
   subject { MyNewFakeClass.method(target_method) }
 
+  let(:fake_args) { ['something'] }
+  let(:fake_params) { {:else => 'anything'} }
+
   context "method knows what it accepts" do
     describe '.i_dont_accept_arguments' do
       let(:target_method) { 'i_dont_accept_arguments' }
@@ -38,6 +41,10 @@ describe Method do
       it { expect(subject.accepts_arguments?).to eq false }
       it { expect(subject.accepts_keywords?).to eq false }
       it { expect(subject.accepts_arguments_splat?).to eq false }
+      it {
+        expect(subject).to receive(:strategy_for_method_without_arguments)
+        subject.execute_call_strategy(*fake_args, **fake_params)
+      }
     end
 
     describe '.i_accept_ordinal_arguments' do
@@ -46,6 +53,10 @@ describe Method do
       it { expect(subject.accepts_arguments?).to eq true }
       it { expect(subject.accepts_keywords?).to eq false }
       it { expect(subject.accepts_arguments_splat?).to eq false }
+      it {
+        expect(subject).to receive(:strategy_for_method_with_arguments)
+        subject.execute_call_strategy(*fake_args, **fake_params)
+      }
     end
 
     describe '.i_accept_optional_ordinal_arguments' do
@@ -55,6 +66,10 @@ describe Method do
       it { expect(subject.accepts_optional_arguments?).to eq true }
       it { expect(subject.accepts_keywords?).to eq false }
       it { expect(subject.accepts_arguments_splat?).to eq false }
+      it {
+        expect(subject).to receive(:strategy_for_method_with_arguments)
+        subject.execute_call_strategy(*fake_args, **fake_params)
+      }
     end
 
     describe '.i_accept_splat_arguments' do
@@ -63,6 +78,10 @@ describe Method do
       it { expect(subject.accepts_arguments?).to eq true }
       it { expect(subject.accepts_keywords?).to eq false }
       it { expect(subject.accepts_arguments_splat?).to eq true }
+      it {
+        expect(subject).to receive(:strategy_for_method_with_arguments)
+        subject.execute_call_strategy(*fake_args, **fake_params)
+      }
     end
 
     describe '.i_accept_keyword_arguments' do
