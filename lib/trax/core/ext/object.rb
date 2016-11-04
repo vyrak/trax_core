@@ -1,5 +1,10 @@
 require "active_support/core_ext/object/try"
 class Object
+  def __smartsend__(method_name, *args, **options)
+    target = method(method_name)
+    target.execute_call_strategy(*args, **options)
+  end
+
   def as!(h)
     h.to_transformer.call(self)
   end
