@@ -1,5 +1,6 @@
 require "active_support/core_ext/object/try"
-class Object
+
+module ObjectExtensions
   def __smartsend__(method_name, *args, **options)
     target = method(method_name)
     target.execute_call_strategy(*args, **options)
@@ -19,10 +20,12 @@ class Object
     target.const_set(configuration_ivar_name.to_s.classify, ::Class.new(::Trax::Core::Configuration))
     configuration_klass = target.const_get(configuration_ivar_name.to_s.classify)
     configuration_klass.source = target
-
     configurer_method_name = (as == :configuration) ? :configure : :"configure_#{as}"
-    target.singleton_class.__send__(:attr_accessor, configuration_ivar_name)
+
     target.singleton_class.instance_variable_set("@#{configuration_ivar_name}", configuration_klass.instance_eval(&blk))
+    target.define_singleton_method(configuration_ivar_name) do
+      return instance_variable_get("@#{configuration_ivar_name}") || detect_in_chain{ instance_variable_get("@#{configuration_ivar_name}") }
+    end
     target.singleton_class.__send__(:alias_method, configuration_ivar_name_shortcut, configuration_ivar_name)
 
     target.define_singleton_method(configurer_method_name) do |&block|
@@ -83,4 +86,8 @@ class Object
       result
     end
   end
+end
+
+class Object
+  include ObjectExtensions
 end
