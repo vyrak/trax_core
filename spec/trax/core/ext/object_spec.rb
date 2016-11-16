@@ -10,6 +10,65 @@ describe ::Object do
     SomeFakeClass
   end
 
+  describe ".define_configuration_options" do
+    before(:all) do
+      class Shape < OpenStruct
+        class_attribute :some_measurement
+        self.some_measurement = 20
+
+        define_configuration_options!(:dimensions) do
+          option :size, :default => 0
+          option :weight, :default => 10
+          option :calculated, :default => lambda{ self.size + self.weight }
+          option :calculated_with_context, :default => lambda{|context| self.calculated + context.some_measurement }
+        end
+
+        define_configuration_options(:geometry) do
+          option :sides
+          option :subtype
+          option :vertices, :default => 10
+        end
+
+        configure_geometry do |config|
+          config.sides = 0
+        end
+      end
+
+      class Square < Shape
+        configure_geometry do |config|
+          config.sides = 4
+        end
+      end
+
+      class Triangle < Shape
+      end
+    end
+
+    subject { Shape }
+
+    it { expect(subject::DimensionsConfiguration.new).to be_a(Trax::Core::Configuration) }
+    it { expect(subject.dimensions_configuration.size).to eq 0 }
+    it { expect(subject.dimensions_configuration.weight).to eq 10 }
+    it { expect(subject.dimensions_configuration.calculated).to eq 10 }
+    it { expect(subject.dimensions_configuration.calculated_with_context).to eq 30 }
+    it { expect(subject.geometry_configuration.sides).to eq 0 }
+
+    context "inheritance" do
+      context "subclass calls configure" do
+        subject { Square }
+
+        it { expect(subject.geometry_configuration.sides).to eq 4 }
+        it { expect(subject.geometry_configuration.vertices).to eq 10 }
+      end
+
+      context "subclass does not call configure" do
+        subject { Triangle }
+
+        it { expect(subject.geometry_configuration.sides).to eq 0 }
+      end
+    end
+  end
+
   describe ".try_chain" do
     it "wraps multiple calls to try and calls try on return value" do
       expect(subject.try_chain(:name, :underscore)).to eq "some_fake_class"
