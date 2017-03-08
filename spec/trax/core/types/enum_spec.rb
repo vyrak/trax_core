@@ -113,12 +113,12 @@ describe ::Trax::Core::Types::Enum do
       context "deprecated" do
         context "is deprecated" do
           subject { described_object.new(:accessories) }
-          it { expect(subject.deprecated?).to be_true }
+          it { expect(subject.deprecated?).to be true }
         end
 
         context "not deprecated" do
           subject { described_object.new(:clothing) }
-          it { expect(subject.deprecated?).to be_false }
+          it { expect(subject.deprecated?).to be false }
         end
       end
     end
