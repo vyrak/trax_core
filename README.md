@@ -2,6 +2,87 @@
 
 The active support for Trax / Trax components.
 
+## Trax::Core::Definitions
+
+Allows domain level attribute definitions for your application, gem, library, etc.
+Definitions can be extended, passed around, reflected, etc.
+
+``` ruby
+module MyFakeEnumNamespace
+  extend ::Trax::Core::Definitions
+end
+```
+
+## Trax::Core::Enum
+
+``` ruby
+module MyFakeEnumNamespace
+  extend ::Trax::Core::Definitions
+
+  enum :Locale do
+    define :en, 1
+    define :da, 2
+    define :ca, 3
+  end
+
+  enum :Category do
+    define :default, 1, :display_name => "Default"
+    define :clothing, 2, :display_name => "Clothing"
+    define :shoes, 3, :display_name => "Shoes"
+    define :accessories, 4, :display_name => "Accessories", :deprecated => true
+  end
+
+  enum :ExtendedCategory, :extends => "MyFakeEnumNamespace::Category" do
+    define :watches,    5
+    define :sunglasses, 6
+  end
+end
+```
+
+**Abstract use examples**
+
+``` ruby
+MyFakeEnumNamespace::Locale.values
+=> [1, 2, 3]
+MyFakeEnumNamespace::Locale.new(:en)
+=> :en
+MyFakeEnumNamespace::Locale.new(:en).to_i
+=> 1
+MyFakeEnumNamespace::Locale.new(1)
+=> :en
+```
+
+One advantage of Trax::Core enums over other enum implementations, is the ability
+to attach metadata to your enum values. This is useful in a variety of circumstances,
+mapping values, having descriptive labels, etc. Anything that is not a reserved key,
+can be passed into the definition and later reflected upon.
+
+``` ruby
+MyFakeEnumNamespace::Category.choices[1][:display_name]
+=> "Clothing"
+```
+
+**Reflecting**
+``` ruby
+MyFakeEnumNamespace::Category.to_schema
+=>
+{"name"=>"category",
+ "source"=>"MyFakeEnumNamespace::Category",
+ "type"=>:enum,
+ "choices"=>
+  [{"source"=>"MyFakeEnumNamespace::Category::Default", "name"=>"default", "type"=>:enum_value, "integer_value"=>1, "attributes"=>{"display_name"=>"Default"}},
+   {"source"=>"MyFakeEnumNamespace::Category::Clothing", "name"=>"clothing", "type"=>:enum_value, "integer_value"=>2, "attributes"=>{"display_name"=>"Clothing"}},
+   {"source"=>"MyFakeEnumNamespace::Category::Shoes", "name"=>"shoes", "type"=>:enum_value, "integer_value"=>3, "attributes"=>{"display_name"=>"Shoes"}}],
+ "values"=>[:default, :clothing, :shoes]}
+```
+
+Note that the deprecated value is not included in the to_schema call above.
+The standard rule with enums is never delete any values, only deprecate.
+That will ensure your api's are always backwards compatible.
+(i.e. you delete an option, but have records in database with that option still)
+To schema is mainly intended to be used for the sake of front end knowing about backend,
+validation, etc.
+
 ## Trax::Core::NamedClass
 **Create a non anonymous class via a fully qualified class name**
 *note namespace it is created in must exist prior to creation*
