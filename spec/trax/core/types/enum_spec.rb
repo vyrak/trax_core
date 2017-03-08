@@ -15,7 +15,7 @@ describe ::Trax::Core::Types::Enum do
         define :default, 1, :display_name => "Default"
         define :clothing, 2, :display_name => "Clothing"
         define :shoes, 3, :display_name => "Shoes"
-        define :accessories, 4, :display_name => "Accessories"
+        define :accessories, 4, :display_name => "Accessories", :deprecated => true
       end
 
       enum :ExtendedCategory, :extends => "MyFakeEnumNamespace::Category" do
@@ -109,6 +109,18 @@ describe ::Trax::Core::Types::Enum do
           it { expect(subject.select_previous_value).to eq described_object.new(:shoes) }
         end
       end
+
+      context "deprecated" do
+        context "is deprecated" do
+          subject { described_object.new(:accessories) }
+          it { expect(subject.deprecated?).to be_true }
+        end
+
+        context "not deprecated" do
+          subject { described_object.new(:clothing) }
+          it { expect(subject.deprecated?).to be_false }
+        end
+      end
     end
   end
 
@@ -131,7 +143,19 @@ describe ::Trax::Core::Types::Enum do
   end
 
   context ".to_schema" do
-    subject { "::MyFakeEnumNamespace::Category".constantize.new(2).to_schema }
-    it { expect(subject[:attributes][:display_name]).to eq "Clothing" }
+    subject { "::MyFakeEnumNamespace::Category".constantize.to_schema }
+
+    it { expect(subject).to have_key("choices") }
+    it { expect(subject).to have_key("values") }
+
+    context "enum value" do
+      subject { "::MyFakeEnumNamespace::Category".constantize.new(2).to_schema }
+      it { expect(subject[:attributes][:display_name]).to eq "Clothing" }
+    end
+
+    context "deprecated values" do
+      it { expect(subject["values"]).to_not include(:accessories) }
+      it { expect(subject["choices"].map(&["name"])).to_not include("accessories") }
+    end
   end
 end

@@ -26,6 +26,10 @@ module Trax
           val == parent
         end
 
+        def self.deprecated?
+          deprecated
+        end
+
         def self.[](attribute_name)
           attributes[attribute_name]
         end
