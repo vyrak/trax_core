@@ -15,7 +15,7 @@ module Trax
         class_attribute :allow_nil, :raise_on_invalid
 
         ### Class Methods ###
-        def self.define_enum_value(const_name, val=nil, **attributes, &block)
+        def self.define_enum_value(const_name, val=nil, deprecated:false, **attributes, &block)
           name = "#{const_name}".underscore.to_sym
           const_name = name.to_s.camelize
           val = (self._values_hash.length + 1) if val.nil?
@@ -23,7 +23,7 @@ module Trax
           raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => const_name) if self === name
           raise ::Trax::Core::Errors::DuplicateEnumValue.new(:klass => self.class.name, :value => val) if self === val
 
-          value_klass_class_attributes = {:tag => name, :value => val, :attributes => attributes}
+          value_klass_class_attributes = {:tag => name, :value => val, :deprecated => deprecated, :attributes => attributes}
           value_klass = ::Trax::Core::NamedClass.new("#{self.name}::#{const_name}", ::Trax::Core::Types::EnumValue, **value_klass_class_attributes, &block)
 
           self._values_hash[val] = value_klass
@@ -101,6 +101,10 @@ module Trax
           _names_hash.values
         end
 
+        def self.non_deprecated_choices
+          choices.reject(&:deprecated?)
+        end
+
         def self.no_raise_mode?
           !raise_on_invalid
         end
@@ -135,8 +139,8 @@ module Trax
             :name => self.name.demodulize.underscore,
             :source => self.name,
             :type => self.type,
-            :choices => choices.map(&:to_schema),
-            :values => keys
+            :choices => non_deprecated_choices.map(&:to_schema),
+            :values => non_deprecated_choices.map(&:to_sym)
           )
           result[:default] = self.default if self.respond_to?(:default)
           result
