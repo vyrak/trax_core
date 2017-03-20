@@ -2,6 +2,10 @@ module Trax
   module Core
     module Types
       class EnumValue
+        def self.display_name
+          self.to_s
+        end
+
         def self.as_json(options={})
           tag.to_s
         end
