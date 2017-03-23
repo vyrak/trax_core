@@ -10,6 +10,10 @@ module Trax
           })
         }
 
+        klass.class_attribute :definition_blocks
+        klass.definition_blocks = _parent_klass.try(:definition_blocks) ? _parent_klass.definition_blocks.clone : ::Set.new
+        klass.definition_blocks << block
+
         options.each_pair do |k,v|
           klass.class_attribute k
           klass.__send__("#{k}=", v)
