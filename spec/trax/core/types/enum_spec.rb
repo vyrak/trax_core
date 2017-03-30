@@ -142,6 +142,20 @@ describe ::Trax::Core::Types::Enum do
     end
   end
 
+  context "serialization" do
+    context "it can be serialized" do
+      let(:described_object) { "::MyFakeEnumNamespace::Category".constantize }
+      subject { described_object.new(1) }
+      it { expect{ Marshal.dump(subject) }.to_not raise_error }
+    end
+
+    context "it can be serialized when extended" do
+      let(:described_object) { "::MyFakeEnumNamespace::ExtendedCategory".constantize }
+      subject { described_object.new(1) }
+      it { expect{ Marshal.dump(subject) }.to_not raise_error }
+    end
+  end
+
   context ".to_schema" do
     subject { "::MyFakeEnumNamespace::Category".constantize.to_schema }
 
