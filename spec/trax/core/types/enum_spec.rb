@@ -138,7 +138,16 @@ describe ::Trax::Core::Types::Enum do
         "::MyFakeEnumNamespace::Category".constantize
       end
 
-      it { expect(described_object.names).to_not include(:watches)}
+      let(:extended_object) do
+        "MyFakeEnumNamespace::ExtendedCategory".constantize
+      end
+
+      it {
+        expect(extended_object.names).to include(:watches)
+        expect(described_object.names).to_not include(:watches)
+        expect(extended_object.choices.length).to eq 6
+        expect(described_object.choices.length).to eq 4
+      }
     end
   end
 
