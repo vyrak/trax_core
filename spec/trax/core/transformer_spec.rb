@@ -56,6 +56,14 @@ describe ::Trax::Core::Transformer do
       end
 
       before_transform do
+        # noop
+      end
+
+      after_transform do
+        # noop
+      end
+
+      before_transform do
         self.delete_if { |_, v| v.blank? }
       end
 

@@ -210,7 +210,7 @@ module Trax
       #will transform output with return of each callback
       def run_before_transform_callbacks
         self.class.before_transform_callbacks.each do |callback|
-          @output = self.instance_exec(@output, &callback)
+          @output = self.instance_exec(@output, &callback) || @output
         end
       end
 
@@ -220,7 +220,7 @@ module Trax
 
       def run_after_transform_callbacks
         self.class.after_transform_callbacks.each do |callback|
-          @output = self.instance_exec(@output, &callback)
+          @output = self.instance_exec(@output, &callback) || @output
         end
       end
 
