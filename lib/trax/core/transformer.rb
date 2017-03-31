@@ -6,6 +6,8 @@ module Trax
       def self.inherited(subklass)
         subklass.class_attribute :properties
         subklass.properties = {}.with_indifferent_access
+        subklass.class_attribute :before_transform_callbacks
+        subklass.before_transform_callbacks = ::Set.new
         subklass.class_attribute :after_initialize_callbacks
         subklass.after_initialize_callbacks = ::Set.new
         subklass.class_attribute :after_transform_callbacks
@@ -14,6 +16,10 @@ module Trax
 
       def self.after_initialize(&block)
         after_initialize_callbacks << block
+      end
+
+      def self.before_transform(&block)
+        before_transform_callbacks << block
       end
 
       def self.after_transform(&block)
@@ -82,6 +88,8 @@ module Trax
         @parent = parent if parent
 
         initialize_output_properties
+        run_before_transform_callbacks if run_before_transform_callbacks?
+
         initialize_default_values
         run_after_initialize_callbacks if run_after_initialize_callbacks?
         run_after_transform_callbacks if run_after_transform_callbacks?
@@ -200,6 +208,16 @@ module Trax
       end
 
       #will transform output with return of each callback
+      def run_before_transform_callbacks
+        self.class.before_transform_callbacks.each do |callback|
+          @output = self.instance_exec(@output, &callback)
+        end
+      end
+
+      def run_before_transform_callbacks?
+        self.class.before_transform_callbacks.any?
+      end
+
       def run_after_transform_callbacks
         self.class.after_transform_callbacks.each do |callback|
           @output = self.instance_exec(@output, &callback)

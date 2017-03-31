@@ -19,12 +19,15 @@ describe ::Trax::Core::Transformer do
         "number_of_employees" => 40
       },
       "some_object" => {
-        "thing" => 1
+        "thing" => 1,
+        "warning_shot" => ""
       },
       "some_other_object" => {
-        "some_value" => 2
+        "some_value" => 2,
+        "warning_shot" => ""
       },
-      "some_unmapped_var" => 2
+      "some_unmapped_var" => 2,
+      "warning_shot" => ""
     }.with_indifferent_access
   end
 
@@ -34,6 +37,7 @@ describe ::Trax::Core::Transformer do
       property "something", :default => ->(v) { "anything" }
       property "some_non_proc_default", :default => 5
       property "legal_name", :from => "legalName"
+      property "warning_shot"
 
       property "some_value"
       property "some_value_to_times_by"
@@ -51,8 +55,17 @@ describe ::Trax::Core::Transformer do
         property "url", :from_parent => "url"
       end
 
+      before_transform do
+        self.delete_if { |_, v| v.blank? }
+      end
+
       transformer "some_object" do
         property "thing"
+        property "warning_shot"
+
+        before_transform do
+          self.delete_if { |_, v| v.blank? }
+        end
 
         after_transform do
           OpenStruct.new(self)
@@ -61,6 +74,7 @@ describe ::Trax::Core::Transformer do
 
       transformer "some_other_object" do
         property "some_value"
+        property "warning_shot"
 
         after_transform do |result|
           self['result'] = result['some_value'] * self.parent.input["some_unmapped_var"]
@@ -122,6 +136,14 @@ describe ::Trax::Core::Transformer do
     end
 
     context "callbacks" do
+      context "before transform" do
+        it "runs before transform callbacks which can mutate return result" do
+          expect(subject).to_not have_key("warning_shot")
+          expect(subject["some_object"]).to_not respond_to(:warning_shot)
+          expect(subject["some_other_object"]).to respond_to(:warning_shot)
+        end
+      end
+
       context "after transform" do
         it "runs after transform callbacks which can mutate return result" do
           expect(subject["some_object"].thing).to eq 1
@@ -129,12 +151,6 @@ describe ::Trax::Core::Transformer do
 
         it "passes instance" do
           expect(subject["some_other_object"].result).to eq 4
-        end
-      end
-
-      context "after transform" do
-        it "runs after transform callbacks which can mutate return result" do
-          expect(subject["some_object"].thing).to eq 1
         end
 
         it "wraps return value in class" do
