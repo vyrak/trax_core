@@ -5,6 +5,7 @@ module Trax
         extend ::ActiveSupport::Autoload
 
         autoload :ArrayOfMembers
+        autoload :SetOfMembers
       end
     end
   end

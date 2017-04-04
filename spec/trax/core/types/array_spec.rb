@@ -22,6 +22,8 @@ describe ::Trax::Core::Types::Array do
       it {
         test_subject << {:width => 2, :height => 2}
         expect(test_subject.length).to eq 2
+        binding.pry
+        expect(test_subject.to_a.length).to eq 2
       }
 
       it {
