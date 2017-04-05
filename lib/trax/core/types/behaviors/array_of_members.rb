@@ -6,17 +6,12 @@ module Trax
           extend ::ActiveSupport::Concern
 
           included do
-            # include ::Enumerable
-            #
             class_attribute :member_class unless self.respond_to?(:member_class) && self.member_class
           end
 
-          def initialize(*args)
-            super([args].flatten.compact)
-            @value = @value.map{ |ele| self.class.member_class.new(ele) }
-            # @value.map!{ |ele| self.class.member_class.new(ele) }
-            # @value = @args.map!{ |ele| self.class.member_class.new(ele) }
-            # self.map!{ |ele| self.class.member_class.new(ele) }
+          def initialize(input)
+            input = [input] if !(input.is_a?(::Array) || input.is_a?(::Set) || input.is_a?(self.class))
+            @value = input.map!{ |ele| self.class.member_class.new(ele) }
           end
 
           def <<(val)

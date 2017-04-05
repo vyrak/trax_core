@@ -6,6 +6,11 @@ module Trax
           :array
         end
 
+        def self.contains_instances_of(klass)
+          self.include ::Trax::Core::Types::Behaviors::ArrayOfMembers
+          self.member_class = klass
+        end
+
         def self.of(klass)
           return ::Class.new(self) do
             include ::Trax::Core::Types::Behaviors::ArrayOfMembers
