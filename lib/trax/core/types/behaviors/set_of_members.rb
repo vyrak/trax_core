@@ -9,7 +9,7 @@ module Trax
             class_attribute :member_class unless self.respond_to?(:member_class) && self.member_class
           end
 
-          def initialize(input)
+          def initialize(input=[])
             input = [input] if !(input.is_a?(::Array) || input.is_a?(::Set) || input.is_a?(self.class))
 
             @value = ::Set[
