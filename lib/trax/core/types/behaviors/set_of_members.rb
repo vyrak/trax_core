@@ -2,16 +2,19 @@ module Trax
   module Core
     module Types
       module Behaviors
-        module ArrayOfMembers
+        module SetOfMembers
           extend ::ActiveSupport::Concern
 
           included do
             class_attribute :member_class unless self.respond_to?(:member_class) && self.member_class
           end
 
-          def initialize(input)
+          def initialize(input=[])
             input = [input] if !(input.is_a?(::Array) || input.is_a?(::Set) || input.is_a?(self.class))
-            @value = input.map!{ |ele| self.class.member_class.new(ele) }
+
+            @value = ::Set[
+              *input.map!{|ele| self.class.member_class.new(ele) }
+            ]
           end
 
           def <<(val)
