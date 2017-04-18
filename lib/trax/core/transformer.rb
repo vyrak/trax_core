@@ -76,6 +76,10 @@ module Trax
         end
       end
 
+      def self.object_has_property?(_property, obj)
+        !!fetch_property_from_object(_property, obj)
+      end
+
       def initialize(obj={}, parent=nil)
         @input = obj.dup
         @output = {}.with_indifferent_access
@@ -170,9 +174,16 @@ module Trax
           if @input.key?(property_klass.property_name)
             value = @input[property_klass.property_name]
             @output[property_klass.property_name] = property_klass.new(value, self)
-          elsif @input.key?(property_klass.try(:from))
-            value = @input[property_klass.from]
-            @output[property_klass.property_name] = property_klass.new(value, self)
+          elsif property_klass.try(:from) && self.class.object_has_property?(property_klass.from, @input)
+            value = fetch_property_from_object(property_klass.from, @input)
+            @output[property_klass.property_name] = value
+          # elsif @input.key?(property_klass.try(:from)) || (property_klass.try(:from) && self.class.fetch_property_from_object(property_klass.from, @input))
+          #   puts "HELLO PROPERTY KLASS"
+          #   # binding.pry
+          #   binding.pry
+          #   # binding.pry
+          #   value = @input[property_klass.from]
+          #   @output[property_klass.property_name] = property_klass.new(value, self)
           elsif property_klass.from_parent?
             value = self.class.fetch_property_from_object(property_klass.from_parent, self.parent.input)
             @output[property_klass.property_name] = property_klass.new(value, self)
