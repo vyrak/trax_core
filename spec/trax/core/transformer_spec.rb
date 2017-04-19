@@ -38,7 +38,7 @@ describe ::Trax::Core::Transformer do
       property "some_value"
       property "some_value_to_times_by"
       property "some_value_transform", :default => ->(i){ 1 } do |value, instance|
-        value * instance["some_value_to_times_by"]
+        # value * instance["some_value_to_times_by"]
       end
 
       transformer "stats" do
@@ -63,7 +63,7 @@ describe ::Trax::Core::Transformer do
         property "some_value"
 
         after_transform do |result|
-          self['result'] = result['some_value'] * self.parent.input["some_unmapped_var"]
+          # self['result'] = result['some_value'] * self.parent.input["some_unmapped_var"]
           OpenStruct.new(self)
         end
       end
@@ -113,6 +113,7 @@ describe ::Trax::Core::Transformer do
       end
 
       it "mapping from parent nested property" do
+        # binding.pry
         expect(subject["stats"]["raised"]).to eq payload["metrics"]["raised"]
       end
 
