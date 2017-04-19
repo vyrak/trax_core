@@ -36,6 +36,10 @@ module Trax
         @transformer_properties_with_after_transform_callbacks ||= transformer_properties.select{|prop| prop.after_transform_callbacks.any? }
       end
 
+      def self.input_properties
+        @input_properties ||= properties.values.select{ |prop| prop.is_source_input? }
+      end
+
       def self.is_nested?
         !!self.try(:parent_definition)
       end
@@ -76,8 +80,16 @@ module Trax
         end
       end
 
+      def self.fetch_property_from_input_or_output(_property, input, output)
+        fetch_property_from_object(_property, input) || fetch_property_from_object(_property, output)
+      end
+
       def self.object_has_property?(_property, obj)
         !!fetch_property_from_object(_property, obj)
+      end
+
+      def self.any_objects_have_property?(_property, *objects)
+        objects.any?{ |obj| object_has_property?(obj) }
       end
 
       def initialize(obj={}, parent=nil)
@@ -170,33 +182,30 @@ module Trax
       end
 
       def initialize_output_properties
-        self.class.properties.each_pair do |k,property_klass|
-          if @input.key?(property_klass.property_name)
-            value = @input[property_klass.property_name]
-            @output[property_klass.property_name] = property_klass.new(value, self)
-          elsif property_klass.try(:from) && self.class.object_has_property?(property_klass.from, @input)
-            value = fetch_property_from_object(property_klass.from, @input)
-            @output[property_klass.property_name] = value
-          # elsif @input.key?(property_klass.try(:from)) || (property_klass.try(:from) && self.class.fetch_property_from_object(property_klass.from, @input))
-          #   puts "HELLO PROPERTY KLASS"
-          #   # binding.pry
-          #   binding.pry
-          #   # binding.pry
-          #   value = @input[property_klass.from]
-          #   @output[property_klass.property_name] = property_klass.new(value, self)
-          elsif property_klass.from_parent?
-            value = self.class.fetch_property_from_object(property_klass.from_parent, self.parent.input)
-            @output[property_klass.property_name] = property_klass.new(value, self)
-          elsif property_klass.ancestors.include?(::Trax::Core::Transformer)
-            value = if property_klass.default.is_a?(Proc)
-              property_klass.default.arity > 0 ? property_klass.default.call(self) : property_klass.default.call
-            else
-              property_klass.default
-            end
-
-            @output[property_klass.property_name] = property_klass.new(value, self)
-          end
+        self.class.input_properties.each do |property_klass|
+          binding.pry
+          property_klass.fetch_and_set_value(self)
         end
+        # self.class.properties.each_pair do |k,property_klass|
+        #
+        #   if !property_klass.is_translated? && @input.key?(property_klass.property_name)
+        #     value = @input[property_klass.property_name]
+        #     @output[property_klass.property_name] = property_klass.new(value, self)
+        #   elsif property_klass.is_translated?
+        #     property_klass.fetch_and_set_value(self)
+        #   elsif property_klass.from_parent?
+        #     value = self.class.fetch_property_from_object(property_klass.from_parent, self.parent.input)
+        #     @output[property_klass.property_name] = property_klass.new(value, self)
+        #   elsif property_klass.ancestors.include?(::Trax::Core::Transformer)
+        #     value = if property_klass.default.is_a?(Proc)
+        #       property_klass.default.arity > 0 ? property_klass.default.call(self) : property_klass.default.call
+        #     else
+        #       property_klass.default
+        #     end
+        #
+        #     @output[property_klass.property_name] = property_klass.new(value, self)
+        #   end
+        # end
       end
 
       #will not transform output based on callback result
@@ -231,8 +240,79 @@ module Trax
         @is_translated ||= !!self.try(:from)
       end
 
+      def self.is_callable?
+        @is_callable ||= self.try(:with) && self.try(:with).is_a?(Proc)
+      end
+
       def self.from_parent?
         @from_parent ||= !!try(:from_parent)
+      end
+
+      def self.is_transformer?
+        @is_transformer ||= ancestors.include?(::Trax::Core::Transformer)
+      end
+
+      def self.is_source_output?
+        @is_source_output ||= (self.try(:source) && self.try(:source) == :output) || false
+      end
+
+      def self.is_source_input?
+        @is_source_input ||= !is_source_output?
+      end
+
+      def self.fetch_and_set_value(transformer)
+        value = if is_source_input?
+          fetch_value(transformer.input, transformer)
+        else
+          fetch_value(transformer.output, transformer)
+        end
+
+        value = self[:with].call(transformer) if is_callable?
+
+        # value = if property_klass.default.is_a?(Proc)
+        #       property_klass.default.arity > 0 ? property_klass.default.call(self) : property_klass.default.call
+        #     else
+        #       property_klass.default
+        #     end
+
+        # binding.pry
+
+        # binding.pry if transformer.
+
+        set_value(value, transformer)
+      end
+
+      def self.fetch_value(obj, transformer)
+        if is_translated?
+          fetch_translated_value(obj, transformer)
+        elsif from_parent?
+          fetch_parent_value(obj, transformer)
+        elsif is_transformer?
+          fetch_transformer_value(obj, transformer)
+        end
+      end
+
+      def self.set_value(value, transformer)
+        transformer.output[self.property_name] = new(value, transformer)
+      end
+
+      def self.fetch_translated_value(obj, transformer)
+        transformer.class.fetch_property_from_object(from, obj)
+        # fetch_property_from_object(from, obj)
+      end
+
+      def self.fetch_parent_value(obj, transformer)
+        transformer.class.fetch_property_from_object(from_parent, transformer.parent.input)
+      end
+
+      def self.fetch_transformer_value(obj, transformer)
+        value = if self.default.is_a?(Proc)
+          self.default.arity > 0 ? self.default.call(self) : self.default.call
+        else
+          self.default
+        end
+
+        value
       end
 
       def initialize(value, transformer)
