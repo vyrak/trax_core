@@ -40,6 +40,10 @@ module Trax
         @input_properties ||= properties.values.select{ |prop| prop.is_source_input? }
       end
 
+      def self.computed_properties
+        @computed_properties ||= properties.values.reject{ |prop| prop.is_source_input? }
+      end
+
       def self.is_nested?
         !!self.try(:parent_definition)
       end
@@ -52,6 +56,7 @@ module Trax
         options[:parent_definition] = self
         options[:property_name] = _property_name
         options[:with] = block if block_given?
+        options[:from] = options[:property_name] unless options[:from]
         transformer_klass_name = "#{name}::#{_property_name.camelize}"
         transformer_klass = ::Trax::Core::NamedClass.new(transformer_klass_name, Property, **options)
         self.properties[_property_name] = transformer_klass
@@ -78,10 +83,6 @@ module Trax
         else
           obj[_property]
         end
-      end
-
-      def self.fetch_property_from_input_or_output(_property, input, output)
-        fetch_property_from_object(_property, input) || fetch_property_from_object(_property, output)
       end
 
       def self.object_has_property?(_property, obj)
@@ -183,29 +184,14 @@ module Trax
 
       def initialize_output_properties
         self.class.input_properties.each do |property_klass|
-          binding.pry
           property_klass.fetch_and_set_value(self)
         end
-        # self.class.properties.each_pair do |k,property_klass|
-        #
-        #   if !property_klass.is_translated? && @input.key?(property_klass.property_name)
-        #     value = @input[property_klass.property_name]
-        #     @output[property_klass.property_name] = property_klass.new(value, self)
-        #   elsif property_klass.is_translated?
-        #     property_klass.fetch_and_set_value(self)
-        #   elsif property_klass.from_parent?
-        #     value = self.class.fetch_property_from_object(property_klass.from_parent, self.parent.input)
-        #     @output[property_klass.property_name] = property_klass.new(value, self)
-        #   elsif property_klass.ancestors.include?(::Trax::Core::Transformer)
-        #     value = if property_klass.default.is_a?(Proc)
-        #       property_klass.default.arity > 0 ? property_klass.default.call(self) : property_klass.default.call
-        #     else
-        #       property_klass.default
-        #     end
-        #
-        #     @output[property_klass.property_name] = property_klass.new(value, self)
-        #   end
-        # end
+
+        self.class.computed_properties.each do |property_klass|
+          property_klass.fetch_and_set_value(self)
+        end
+
+        self
       end
 
       #will not transform output based on callback result
@@ -267,7 +253,9 @@ module Trax
           fetch_value(transformer.output, transformer)
         end
 
-        value = self[:with].call(transformer) if is_callable?
+        # self.with.
+
+        # value = self[:with].call(value) if is_callable?
 
         # value = if property_klass.default.is_a?(Proc)
         #       property_klass.default.arity > 0 ? property_klass.default.call(self) : property_klass.default.call
@@ -283,12 +271,14 @@ module Trax
       end
 
       def self.fetch_value(obj, transformer)
-        if is_translated?
-          fetch_translated_value(obj, transformer)
-        elsif from_parent?
+        # if is_translated?
+        #   fetch_translated_value(obj, transformer)
+        if from_parent?
           fetch_parent_value(obj, transformer)
         elsif is_transformer?
           fetch_transformer_value(obj, transformer)
+        else
+          fetch_translated_value(obj, transformer)
         end
       end
 
@@ -319,6 +309,7 @@ module Trax
         @value = value
 
         if self.class.try(:with)
+          # binding.pry
           @value = self.class.with.arity > 1 ? self.class.with.call(@value, transformer) : self.class.with.call(@value)
         end
       end
