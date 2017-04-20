@@ -4,6 +4,11 @@ module Trax
       extend ::ActiveSupport::Concern
 
       module ClassMethods
+        def from_parent?
+          return @from_parent if defined?(@from_parent)
+          @from_parent = !!try(:from_parent)
+        end
+
         def is_nested?
           return @is_nested if defined?(@is_nested)
           @is_nested = !!try(:parent_definition)
@@ -19,16 +24,6 @@ module Trax
           @is_callable = try(:with) && try(:with).is_a?(Proc)
         end
 
-        def has_default_value?
-          return @has_default_value if defined?(@has_default_value)
-          @has_default_value = !!try(:default)
-        end
-
-        def from_parent?
-          return @from_parent if defined?(@from_parent)
-          @from_parent = !!try(:from_parent)
-        end
-
         def is_transformer?
           return @is_transformer if defined?(@is_transformer)
           @is_transformer = ancestors.include?(::Trax::Core::Transformer)
@@ -39,26 +34,27 @@ module Trax
           @is_source_output = (try(:source) && try(:source) == :output) || false
         end
 
-        def is_source_input?
-          return @is_source_input if defined?(@is_source_input)
-          @is_source_input = !is_source_output?
-        end
-
-        def has_transformer_class?
-          return @has_transformer_class if defined?(@has_transformer_class)
-          @has_transformer_class = try(:with) && !self.with.is_a?(Proc) && self.with.ancestors.include?(::Trax::Core::Transformer)
-        end
-
-        def input_key
-          @input_key ||= try(:from) ? from : property_name
-        end
-
         def input_key_chain
           @input_key_chain ||= input_key.split("/")
         end
 
         def input_key
           @input_key ||= self.try(:from_parent) || self.try(:from) || self.property_name
+        end
+
+        def is_source_input?
+          return @is_source_input if defined?(@is_source_input)
+          @is_source_input = !is_source_output?
+        end
+
+        def has_default_value?
+          return @has_default_value if defined?(@has_default_value)
+          @has_default_value = !!try(:default)
+        end
+
+        def has_transformer_class?
+          return @has_transformer_class if defined?(@has_transformer_class)
+          @has_transformer_class = try(:with) && !self.with.is_a?(Proc) && self.with.ancestors.include?(::Trax::Core::Transformer)
         end
 
         def output_key

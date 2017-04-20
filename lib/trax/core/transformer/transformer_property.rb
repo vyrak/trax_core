@@ -3,18 +3,6 @@ module Trax
     class TransformerProperty < SimpleDelegator
       include ::Trax::Core::CommonTransformerMethods
 
-      # def self.input_key
-      #   @input_key ||= self.try(:from_parent) || self.try(:from) || self.property_name
-      # end
-      #
-      # def self.input_key_chain
-      #   @input_key_chain ||= input_key.split("/")
-      # end
-      #
-      # def self.output_key
-      #   @output_key ||= self.try(:as) ? self.as : self.property_name
-      # end
-
       def initialize(transformer)
         @transformer = transformer
         set_value
@@ -45,15 +33,6 @@ module Trax
         end
       end
 
-      def transform_value_with_block
-        @value = self.class.with.arity > 1 ? self.class.with.call(@value, @transformer) : self.class.with.call(@value)
-      end
-
-      def transform_value
-        @value = {} unless @value
-        @value = self.class.with.new(@value, @transformer)
-      end
-
       def fetch_property_value
         self.target.dig(*self.class.input_key_chain)
       end
@@ -80,6 +59,15 @@ module Trax
         else
           @transformer.input
         end
+      end
+
+      def transform_value_with_block
+        @value = self.class.with.arity > 1 ? self.class.with.call(@value, @transformer) : self.class.with.call(@value)
+      end
+
+      def transform_value
+        @value = {} unless @value
+        @value = self.class.with.new(@value, @transformer)
       end
     end
   end
