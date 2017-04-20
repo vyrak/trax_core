@@ -56,7 +56,7 @@ module Trax
       def self.property(_property_name, **options, &block)
         options[:parent_definition] = self
         options[:property_name] = _property_name
-        options[:with] = block if block_given?
+        options[:with] ||= block if block_given?
         options[:from] = options[:property_name] unless options[:from]
         transformer_klass_name = "#{name}::#{_property_name.camelize}"
         transformer_klass = ::Trax::Core::NamedClass.new(transformer_klass_name, TransformerProperty, **options)
@@ -65,22 +65,13 @@ module Trax
 
       def self.transformer(_property_name, **options, &block)
         options[:parent_definition] = self
-        options[:property_name] = _property_name
         options[:default] = ->(){ {}.with_indifferent_access } unless options.key?(:default)
-        options[:with] = block if block_given?
-        options[:from] = options[:property_name] unless options[:from]
-        transformer_klass_name = "#{name}::#{_property_name.camelize}"
-        puts transformer_klass_name
+
+        transformer_klass_name = "#{name}::#{_property_name.camelize}Transformer"
         transformer_klass = ::Trax::Core::NamedClass.new(transformer_klass_name, Transformer, **options, &block)
-        # transformer_klass = if block_given?
-        #
-        # else
-        #   ::Trax::Core::NamedClass.new(transformer_klass_name, Transformer, **options)
-        # end
-
-        # transformer_klass.instance_eval(&block) if block_given?
-
-        self.properties[_property_name] = transformer_klass
+        property_options = {}.merge(options)
+        property_options[:with] = transformer_klass
+        property(_property_name, **property_options)
       end
 
       def self.nested(*args, **options, &block)
@@ -202,23 +193,13 @@ module Trax
           # @thing = property_klass
           # @output[property_klass.output_key] =  @input[property_klass.property_name] if property_klass.name == "PayloadTransformer::Stats::NumberOfEmployees"
           # binding.pry if property_klass.name == "PayloadTransformer::Stats::NumberOfEmployees"
-            @output[property_klass.output_key] = property_klass.new(self)
+          @output[property_klass.output_key] = property_klass.new(self)
+          # binding.pry if property_klass.name == "PayloadTransformer::Stats"
         end
 
         self.class.computed_properties.each do |property_klass|
           @output[property_klass.output_key] = property_klass.new(self)
         end
-
-        self.class.transformer_properties.each do |property_klass|
-
-          # value = property_klass.default.arity > 0 ? property_klass.default.call(self) : property_klass.default.call if property_klass.default.is_a?(Proc) && !value
-          # binding.pry if self.class.name == "PayloadTransformer::Stats"
-          value = @input[property_klass.from]
-          @output[property_klass.output_key] = property_klass.new(value, self)
-          # @output[property_klass.output_key] = property_klass.new(value, self)
-        end
-
-        # binding.pry if self.class.name == "PayloadTransformer::Stats"
 
         self
       end

@@ -44,17 +44,26 @@ module Trax
           @is_source_input = !is_source_output?
         end
 
-          def input_key
-            @input_key ||= try(:from) ? from : property_name
-          end
+        def has_transformer_class?
+          return @has_transformer_class if defined?(@has_transformer_class)
+          @has_transformer_class = try(:with) && !self.with.is_a?(Proc) && self.with.ancestors.include?(::Trax::Core::Transformer)
+        end
 
-          def input_key_chain
-            @input_key_chain ||= input_key.split("/")
-          end
+        def input_key
+          @input_key ||= try(:from) ? from : property_name
+        end
 
-          def output_key
-            @output_key ||= try(:as) ? as : property_name
-          end
+        def input_key_chain
+          @input_key_chain ||= input_key.split("/")
+        end
+
+        def input_key
+          @input_key ||= self.try(:from_parent) || self.try(:from) || self.property_name
+        end
+
+        def output_key
+          @output_key ||= try(:as) ? as : property_name
+        end
       end
     end
   end
