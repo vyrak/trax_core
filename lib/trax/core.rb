@@ -34,6 +34,7 @@ module Trax
     autoload :Blueprint
     autoload :Configuration
     autoload :Concern
+    autoload :CommonTransformerMethods, 'trax/core/transformer/common_transformer_methods'
     autoload :Definition
     autoload :Definitions
     autoload :EagerLoadNamespace
@@ -49,7 +50,8 @@ module Trax
     autoload :NamedClass
     autoload :NamedModule
     autoload :SilenceWarnings
-    autoload :Transformer
+    autoload :Transformer, 'trax/core/transformer/transformer'
+    autoload :TransformerProperty, 'trax/core/transformer/transformer_property'
     autoload :Types
     autoload :PathPermutations
   end

@@ -24,7 +24,13 @@ describe ::Trax::Core::Transformer do
       "some_other_object" => {
         "some_value" => 2
       },
-      "some_unmapped_var" => 2
+      "some_unmapped_var" => 2,
+      "product" => {
+        "price" => 100
+      },
+      "shipping" => {
+        "price" => 100
+      }
     }.with_indifferent_access
   end
 
@@ -40,6 +46,7 @@ describe ::Trax::Core::Transformer do
       property "some_value_transform", :default => ->(i){ 1 } do |value, instance|
         value * instance["some_value_to_times_by"]
       end
+      property "price", :from => "product/price"
 
       transformer "stats" do
         property "number_of_employees"
@@ -66,6 +73,10 @@ describe ::Trax::Core::Transformer do
           self['result'] = result['some_value'] * self.parent.input["some_unmapped_var"]
           OpenStruct.new(self)
         end
+      end
+
+      property "total_price", :from => "price", :source => :output do |value, transformer|
+        value + transformer.input["shipping"]["price"]
       end
     end
   end
@@ -155,16 +166,10 @@ describe ::Trax::Core::Transformer do
       end
     end
 
-    it {
-      expect(subject["some_value"]).to eq 30
-    }
-
-    it {
-      expect(subject["some_value_to_times_by"]).to eq 2
-    }
-
-    it {
-      expect(subject["some_value_transform"]).to eq 20
-    }
+    it { expect(subject["some_value"]).to eq 30 }
+    it { expect(subject["some_value_to_times_by"]).to eq 2 }
+    it { expect(subject["some_value_transform"]).to eq 20}
+    it { expect(subject["price"]).to eq payload["product"]["price"] }
+    it { expect(subject["total_price"]).to eq 200 }
   end
 end
