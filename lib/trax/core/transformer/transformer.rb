@@ -94,7 +94,7 @@ module Trax
             end
           end
 
-          duplicate_hash
+          duplicate_hash.compact
         end
       end
 
@@ -110,7 +110,7 @@ module Trax
             end
           end
 
-          duplicate_hash
+          duplicate_hash.compact
         end
       end
 
